@@ -128,36 +128,97 @@ def run_monte_carlo_simulation(
             for supplier in region_suppliers:
                 world.add_agent(supplier)
         
-        # Run simulation
-        simulation_results = simulate_supply_chain_operation(
-            world=world,
-            coo=coo,
-            regional_managers=regional_managers,
-            suppliers=suppliers,
-            logistics_providers={},  # TODO: Add logistics providers
-            production_facilities={},  # TODO: Add production facilities
-            config=config
-        )
+        # Run simulation for multiple time steps
+        iteration_results = []
+        daily_metrics = {
+            'active_orders': [],
+            'completed_orders': [],
+            'delayed_orders': [],
+            'service_level': [],
+            'resilience_score': [],
+            'lead_time': []
+        }
         
-        # Ensure we have valid metrics
-        if not simulation_results:
-            simulation_results = base_metrics
+        daily_order_status = []
         
-        results.append(simulation_results)
+        for _ in range(config['simulation']['time_steps']):
+            step_results = simulate_supply_chain_operation(
+                world=world,
+                config=config
+            )
+            # Remove current_datetime from step_results before appending
+            if 'current_datetime' in step_results:
+                del step_results['current_datetime']
+            iteration_results.append(step_results)
+            
+            # Track daily metrics
+            for metric in daily_metrics:
+                daily_metrics[metric].append(step_results[metric])
+            
+            # Track daily order status separately
+            if 'order_status' in step_results:
+                daily_order_status.append(step_results['order_status'])
+        
+        # Aggregate results for this iteration
+        iteration_aggregated = {}
+        for metric in iteration_results[0].keys():
+            if metric == 'order_status':
+                continue  # Skip order_status as it's handled separately
+            
+            values = [r[metric] for r in iteration_results]
+            if metric == 'delayed_orders':
+                # For delayed_orders, take the maximum value across time steps
+                iteration_aggregated[metric] = {
+                    'mean': float(max(values)),
+                    'std': float(np.std(values)),
+                    'min': float(min(values)),
+                    'max': float(max(values)),
+                    'daily': values  # Add daily values
+                }
+            else:
+                # For other metrics, take the mean across time steps
+                iteration_aggregated[metric] = {
+                    'mean': float(np.mean(values)),
+                    'std': float(np.std(values)),
+                    'min': float(np.min(values)),
+                    'max': float(max(values)),
+                    'daily': values  # Add daily values
+                }
+        
+        # Add order status to iteration results
+        iteration_aggregated['order_status'] = {
+            'daily': daily_order_status
+        }
+        
+        results.append(iteration_aggregated)
         
         # Clean up agents after each iteration
         for agent in world.agents[:]:
             world.remove_agent(agent)
     
-    # Aggregate results
+    # Aggregate results across all iterations
     aggregated_results = {}
     for metric in results[0].keys():
-        values = [r[metric] for r in results]
+        if metric == 'order_status':
+            # For order status, just take the first iteration's values for simplicity
+            aggregated_results[metric] = results[0][metric]
+            continue
+        
+        values = [r[metric]['mean'] for r in results]  # Use mean from each iteration
+        daily_values = [r[metric]['daily'] for r in results]  # Get daily values from all iterations
+        
+        # Calculate mean daily values across iterations
+        mean_daily = []
+        for day in range(len(daily_values[0])):
+            day_values = [iteration[day] for iteration in daily_values]
+            mean_daily.append(float(np.mean(day_values)))
+        
         aggregated_results[metric] = {
             'mean': float(np.mean(values)),
             'std': float(np.std(values)),
             'min': float(np.min(values)),
             'max': float(np.max(values)),
+            'daily': mean_daily  # Add mean daily values
         }
     
     return aggregated_results
