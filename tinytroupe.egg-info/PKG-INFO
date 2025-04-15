@@ -1,3 +1,22 @@
+Metadata-Version: 2.4
+Name: tinytroupe
+Version: 0.1.0
+Summary: A supply chain simulation framework using TinyTroupe's agent-based capabilities
+Author-email: Your Name <your.email@example.com>
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: rich
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+
 # Supply Chain Resilience Optimization Simulation
 
 This project implements a Monte Carlo simulation to evaluate supply chain resilience improvements in a global manufacturing context. The simulation models various supply chain strategies and their impact on resilience, cost, and performance metrics.

@@ -1,0 +1,9 @@
+numpy
+pandas
+matplotlib
+rich
+
+[dev]
+pytest
+black
+flake8

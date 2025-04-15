@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+tests/test_supply_chain.py
+tests/test_supply_chain_simulation.py
+tinytroupe.egg-info/PKG-INFO
+tinytroupe.egg-info/SOURCES.txt
+tinytroupe.egg-info/dependency_links.txt
+tinytroupe.egg-info/requires.txt
+tinytroupe.egg-info/top_level.txt

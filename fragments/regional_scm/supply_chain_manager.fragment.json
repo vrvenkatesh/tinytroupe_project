@@ -21,6 +21,19 @@
                 "Responds to regional disruptions.",
                 "Reports regional performance metrics.",
                 "Proposes regional resilience improvements."
-            ]
+            ],
+        "goals": [
+            "Maintain optimal inventory levels",
+            "Ensure supplier reliability",
+            "Minimize transportation costs",
+            "Improve regional resilience",
+            "Meet service level agreements"
+        ],
+        "decision_making": {
+            "risk_tolerance": 0.6,
+            "cost_sensitivity": 0.7,
+            "local_expertise": 0.9,
+            "adaptability": 0.8
+        }
     }
 }

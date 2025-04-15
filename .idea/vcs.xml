@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/TinyTroupe_reference" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/tinytroupe" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/tinytroupe" vcs="Git" />
   </component>
 </project>

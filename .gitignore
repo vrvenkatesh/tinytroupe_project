@@ -1,0 +1,6 @@
+### dotenv template
+.env
+.ipynb_checkpoints/
+TinyTroupe_reference/
+Archive/
+cache/
