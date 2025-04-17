@@ -1,0 +1,37 @@
+Core Metrics
+Metric,Mean,Std Dev,Min,Max
+resilience_score,0.5999999999999999,0.0,0.5999999999999999,0.5999999999999999
+recovery_time,0.7,0.0,0.7,0.7
+service_level,0.8,0.0,0.8,0.8
+total_cost,0.7,0.0,0.7,0.7
+inventory_cost,0.5999999999999999,0.0,0.5999999999999999,0.5999999999999999
+transportation_cost,0.7,0.0,0.7,0.7
+risk_exposure,0.5,0.0,0.5,0.5
+supplier_risk,0.4,0.0,0.4,0.4
+transportation_risk,0.5,0.0,0.5,0.5
+lead_time,0.7,0.0,0.7,0.7
+flexibility_score,0.5999999999999999,0.0,0.5999999999999999,0.5999999999999999
+quality_score,0.8,0.0,0.8,0.8
+total_interactions,0.0,0.0,0.0,0.0
+unique_interacting_agents,0.0,0.0,0.0,0.0
+total_orders,20.0,0.0,20.0,20.0
+
+Order Status Summary
+Status,Count
+created,0
+in production,0
+ready for shipping,0
+in transit,0
+delivered,0
+delayed,0
+cancelled,0
+new,20
+production,0
+ready for transit,0
+
+Order Lifecycle Data
+Order ID,created_at,current_status,current_location,production_time,transit_time,delay_time,expected_delivery,actual_delivery,transportation_mode,source_region,destination_region,simulation_day,is_delayed,is_on_time
+ORD_20250415_164614_North America_Europe,2025-04-15 16:46:14,New,North America,0,0,0,2025-04-17 16:46:14,None,None,North America,Europe,9,False,None
+ORD_20250415_164614_Europe_North America,2025-04-15 16:46:14,New,Europe,0,0,0,2025-04-17 16:46:14,None,None,Europe,North America,9,False,None
+
+Daily Tracking Data

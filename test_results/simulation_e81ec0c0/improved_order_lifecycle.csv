@@ -1,0 +1,3 @@
+Order ID,Created At,Current Status,Current Location,Production Time,Transit Time,Delay Time,Expected Delivery,Actual Delivery,Transportation Mode,Source Region,Destination Region,Simulation Day,Is Delayed,Is On Time
+ORD_20250415_163217_North America_Europe,2025-04-15 16:32:17,New,North America,0,0,0,2025-04-17 16:32:17,,,North America,Europe,9,False,
+ORD_20250415_163217_Europe_North America,2025-04-15 16:32:17,New,Europe,0,0,0,2025-04-17 16:32:17,,,Europe,North America,9,False,

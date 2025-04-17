@@ -1,0 +1,113 @@
+Core Metrics
+Metric,Mean,Std Dev,Min,Max
+resilience_score,0.72,0.1200000000000001,0.5999999999999999,0.8400000000000001
+recovery_time,0.49,0.21,0.27999999999999997,0.7
+service_level,0.86,0.05999999999999994,0.8,0.9199999999999999
+total_cost,0.7124834656084655,0.012483465608465583,0.7,0.7249669312169311
+inventory_cost,0.4270469576719576,0.17295304232804226,0.25409391534391534,0.5999999999999999
+transportation_cost,0.6054365079365079,0.09456349206349202,0.5108730158730159,0.7
+risk_exposure,0.35,0.15,0.2,0.5
+supplier_risk,0.28,0.12000000000000001,0.16,0.4
+transportation_risk,0.35,0.15,0.2,0.5
+lead_time,0.49,0.21,0.27999999999999997,0.7
+flexibility_score,0.72,0.1200000000000001,0.5999999999999999,0.8400000000000001
+quality_score,0.86,0.05999999999999994,0.8,0.9199999999999999
+total_interactions,25.0,25.0,0.0,50.0
+unique_interacting_agents,25.0,25.0,0.0,50.0
+total_orders,20.0,0.0,20.0,20.0
+
+Order Status Summary
+Status,Count
+new,2
+production,2
+ready,2
+in_transit,2
+delivered,12
+cancelled,0
+delayed,0
+failed,0
+
+Order Lifecycle Data
+Order ID,Event Index,created_at,current_status,current_location,production_time,transit_time,delay_time,expected_delivery,actual_delivery,transportation_mode,source_region,destination_region,simulation_day,is_delayed,is_on_time
+ORD_20250417_142627_North America_Europe,0,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-18 14:26:27,None,None,North America,Europe,0,False,None
+ORD_20250417_142627_North America_Europe,1,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-18 14:26:27,None,None,North America,Europe,1,False,None
+ORD_20250417_142627_North America_Europe,2,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-19 14:26:27,None,None,North America,Europe,1,False,None
+ORD_20250417_142627_North America_Europe,3,2025-04-17 14:26:27,READY,North America,3,0,0,2025-04-18 14:26:27,None,None,North America,Europe,2,False,None
+ORD_20250417_142627_North America_Europe,4,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-19 14:26:27,None,None,North America,Europe,2,False,None
+ORD_20250417_142627_North America_Europe,5,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-19 14:26:27,None,None,North America,Europe,2,False,None
+ORD_20250417_142627_North America_Europe,6,2025-04-17 14:26:27,IN_TRANSIT,North America,3,1,0,2025-04-18 14:26:27,None,Air,North America,Europe,3,False,None
+ORD_20250417_142627_North America_Europe,7,2025-04-17 14:26:27,READY,North America,3,0,0,2025-04-19 14:26:27,None,None,North America,Europe,3,False,None
+ORD_20250417_142627_North America_Europe,8,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-19 14:26:27,None,None,North America,Europe,3,False,None
+ORD_20250417_142627_North America_Europe,9,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-19 14:26:27,None,None,North America,Europe,3,False,None
+ORD_20250417_142627_North America_Europe,10,2025-04-17 14:26:27,IN_TRANSIT,North America,3,1,0,2025-04-19 14:26:27,None,Air,North America,Europe,4,False,None
+ORD_20250417_142627_North America_Europe,11,2025-04-17 14:26:27,READY,North America,3,0,0,2025-04-19 14:26:27,None,None,North America,Europe,4,False,None
+ORD_20250417_142627_North America_Europe,12,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-19 14:26:27,None,None,North America,Europe,4,False,None
+ORD_20250417_142627_North America_Europe,13,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-18 14:26:27,None,None,North America,Europe,4,False,None
+ORD_20250417_142627_North America_Europe,14,2025-04-17 14:26:27,DELIVERED,North America,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,North America,Europe,4,False,True
+ORD_20250417_142627_North America_Europe,15,2025-04-17 14:26:27,IN_TRANSIT,North America,3,1,0,2025-04-19 14:26:27,None,Air,North America,Europe,5,False,None
+ORD_20250417_142627_North America_Europe,16,2025-04-17 14:26:27,READY,North America,3,0,0,2025-04-19 14:26:27,None,None,North America,Europe,5,False,None
+ORD_20250417_142627_North America_Europe,17,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-18 14:26:27,None,None,North America,Europe,5,False,None
+ORD_20250417_142627_North America_Europe,18,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-19 14:26:27,None,None,North America,Europe,5,False,None
+ORD_20250417_142627_North America_Europe,19,2025-04-17 14:26:27,DELIVERED,North America,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,North America,Europe,5,False,True
+ORD_20250417_142627_North America_Europe,20,2025-04-17 14:26:27,IN_TRANSIT,North America,3,1,0,2025-04-19 14:26:27,None,Air,North America,Europe,6,False,None
+ORD_20250417_142627_North America_Europe,21,2025-04-17 14:26:27,READY,North America,3,0,0,2025-04-18 14:26:27,None,None,North America,Europe,6,False,None
+ORD_20250417_142627_North America_Europe,22,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-19 14:26:27,None,None,North America,Europe,6,False,None
+ORD_20250417_142627_North America_Europe,23,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-19 14:26:27,None,None,North America,Europe,6,False,None
+ORD_20250417_142627_North America_Europe,24,2025-04-17 14:26:27,DELIVERED,North America,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,North America,Europe,6,False,True
+ORD_20250417_142627_North America_Europe,25,2025-04-17 14:26:27,IN_TRANSIT,North America,3,1,0,2025-04-18 14:26:27,None,Air,North America,Europe,7,False,None
+ORD_20250417_142627_North America_Europe,26,2025-04-17 14:26:27,READY,North America,3,0,0,2025-04-19 14:26:27,None,None,North America,Europe,7,False,None
+ORD_20250417_142627_North America_Europe,27,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-19 14:26:27,None,None,North America,Europe,7,False,None
+ORD_20250417_142627_North America_Europe,28,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-18 14:26:27,None,None,North America,Europe,7,False,None
+ORD_20250417_142627_North America_Europe,29,2025-04-17 14:26:27,DELIVERED,North America,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,North America,Europe,7,False,True
+ORD_20250417_142627_North America_Europe,30,2025-04-17 14:26:27,IN_TRANSIT,North America,3,1,0,2025-04-19 14:26:27,None,Air,North America,Europe,8,False,None
+ORD_20250417_142627_North America_Europe,31,2025-04-17 14:26:27,READY,North America,3,0,0,2025-04-19 14:26:27,None,None,North America,Europe,8,False,None
+ORD_20250417_142627_North America_Europe,32,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-18 14:26:27,None,None,North America,Europe,8,False,None
+ORD_20250417_142627_North America_Europe,33,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-19 14:26:27,None,None,North America,Europe,8,False,None
+ORD_20250417_142627_North America_Europe,34,2025-04-17 14:26:27,DELIVERED,North America,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,North America,Europe,8,False,True
+ORD_20250417_142627_North America_Europe,35,2025-04-17 14:26:27,IN_TRANSIT,North America,3,1,0,2025-04-19 14:26:27,None,Air,North America,Europe,9,False,None
+ORD_20250417_142627_North America_Europe,36,2025-04-17 14:26:27,READY,North America,3,0,0,2025-04-18 14:26:27,None,None,North America,Europe,9,False,None
+ORD_20250417_142627_North America_Europe,37,2025-04-17 14:26:27,PRODUCTION,North America,2,0,0,2025-04-19 14:26:27,None,None,North America,Europe,9,False,None
+ORD_20250417_142627_North America_Europe,38,2025-04-17 14:26:27,NEW,North America,0,0,0,2025-04-18 14:26:27,None,None,North America,Europe,9,False,None
+ORD_20250417_142627_North America_Europe,39,2025-04-17 14:26:27,DELIVERED,North America,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,North America,Europe,9,False,True
+ORD_20250417_142627_Europe_North America,0,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-18 14:26:27,None,None,Europe,North America,0,False,None
+ORD_20250417_142627_Europe_North America,1,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-18 14:26:27,None,None,Europe,North America,1,False,None
+ORD_20250417_142627_Europe_North America,2,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-18 14:26:27,None,None,Europe,North America,1,False,None
+ORD_20250417_142627_Europe_North America,3,2025-04-17 14:26:27,READY,Europe,3,0,0,2025-04-18 14:26:27,None,None,Europe,North America,2,False,None
+ORD_20250417_142627_Europe_North America,4,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-18 14:26:27,None,None,Europe,North America,2,False,None
+ORD_20250417_142627_Europe_North America,5,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-19 14:26:27,None,None,Europe,North America,2,False,None
+ORD_20250417_142627_Europe_North America,6,2025-04-17 14:26:27,IN_TRANSIT,Europe,3,1,0,2025-04-18 14:26:27,None,Air,Europe,North America,3,False,None
+ORD_20250417_142627_Europe_North America,7,2025-04-17 14:26:27,READY,Europe,3,0,0,2025-04-18 14:26:27,None,None,Europe,North America,3,False,None
+ORD_20250417_142627_Europe_North America,8,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-19 14:26:27,None,None,Europe,North America,3,False,None
+ORD_20250417_142627_Europe_North America,9,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-19 14:26:27,None,None,Europe,North America,3,False,None
+ORD_20250417_142627_Europe_North America,10,2025-04-17 14:26:27,IN_TRANSIT,Europe,3,1,0,2025-04-18 14:26:27,None,Air,Europe,North America,4,False,None
+ORD_20250417_142627_Europe_North America,11,2025-04-17 14:26:27,READY,Europe,3,0,0,2025-04-19 14:26:27,None,None,Europe,North America,4,False,None
+ORD_20250417_142627_Europe_North America,12,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-19 14:26:27,None,None,Europe,North America,4,False,None
+ORD_20250417_142627_Europe_North America,13,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-18 14:26:27,None,None,Europe,North America,4,False,None
+ORD_20250417_142627_Europe_North America,14,2025-04-17 14:26:27,DELIVERED,Europe,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,Europe,North America,4,False,True
+ORD_20250417_142627_Europe_North America,15,2025-04-17 14:26:27,IN_TRANSIT,Europe,3,1,0,2025-04-19 14:26:27,None,Air,Europe,North America,5,False,None
+ORD_20250417_142627_Europe_North America,16,2025-04-17 14:26:27,READY,Europe,3,0,0,2025-04-19 14:26:27,None,None,Europe,North America,5,False,None
+ORD_20250417_142627_Europe_North America,17,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-18 14:26:27,None,None,Europe,North America,5,False,None
+ORD_20250417_142627_Europe_North America,18,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-19 14:26:27,None,None,Europe,North America,5,False,None
+ORD_20250417_142627_Europe_North America,19,2025-04-17 14:26:27,DELIVERED,Europe,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,Europe,North America,5,False,True
+ORD_20250417_142627_Europe_North America,20,2025-04-17 14:26:27,IN_TRANSIT,Europe,3,1,0,2025-04-19 14:26:27,None,Air,Europe,North America,6,False,None
+ORD_20250417_142627_Europe_North America,21,2025-04-17 14:26:27,READY,Europe,3,0,0,2025-04-18 14:26:27,None,None,Europe,North America,6,False,None
+ORD_20250417_142627_Europe_North America,22,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-19 14:26:27,None,None,Europe,North America,6,False,None
+ORD_20250417_142627_Europe_North America,23,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-19 14:26:27,None,None,Europe,North America,6,False,None
+ORD_20250417_142627_Europe_North America,24,2025-04-17 14:26:27,DELIVERED,Europe,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,Europe,North America,6,False,True
+ORD_20250417_142627_Europe_North America,25,2025-04-17 14:26:27,IN_TRANSIT,Europe,3,1,0,2025-04-18 14:26:27,None,Air,Europe,North America,7,False,None
+ORD_20250417_142627_Europe_North America,26,2025-04-17 14:26:27,READY,Europe,3,0,0,2025-04-19 14:26:27,None,None,Europe,North America,7,False,None
+ORD_20250417_142627_Europe_North America,27,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-19 14:26:27,None,None,Europe,North America,7,False,None
+ORD_20250417_142627_Europe_North America,28,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-18 14:26:27,None,None,Europe,North America,7,False,None
+ORD_20250417_142627_Europe_North America,29,2025-04-17 14:26:27,DELIVERED,Europe,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,Europe,North America,7,False,True
+ORD_20250417_142627_Europe_North America,30,2025-04-17 14:26:27,IN_TRANSIT,Europe,3,1,0,2025-04-19 14:26:27,None,Air,Europe,North America,8,False,None
+ORD_20250417_142627_Europe_North America,31,2025-04-17 14:26:27,READY,Europe,3,0,0,2025-04-19 14:26:27,None,None,Europe,North America,8,False,None
+ORD_20250417_142627_Europe_North America,32,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-18 14:26:27,None,None,Europe,North America,8,False,None
+ORD_20250417_142627_Europe_North America,33,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-18 14:26:27,None,None,Europe,North America,8,False,None
+ORD_20250417_142627_Europe_North America,34,2025-04-17 14:26:27,DELIVERED,Europe,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,Europe,North America,8,False,True
+ORD_20250417_142627_Europe_North America,35,2025-04-17 14:26:27,IN_TRANSIT,Europe,3,1,0,2025-04-19 14:26:27,None,Air,Europe,North America,9,False,None
+ORD_20250417_142627_Europe_North America,36,2025-04-17 14:26:27,READY,Europe,3,0,0,2025-04-18 14:26:27,None,None,Europe,North America,9,False,None
+ORD_20250417_142627_Europe_North America,37,2025-04-17 14:26:27,PRODUCTION,Europe,2,0,0,2025-04-18 14:26:27,None,None,Europe,North America,9,False,None
+ORD_20250417_142627_Europe_North America,38,2025-04-17 14:26:27,NEW,Europe,0,0,0,2025-04-19 14:26:27,None,None,Europe,North America,9,False,None
+ORD_20250417_142627_Europe_North America,39,2025-04-17 14:26:27,DELIVERED,Europe,3,1,0,2025-04-18 14:26:27,2025-04-17 14:26:27,Air,Europe,North America,9,False,True
+
+Daily Tracking Data

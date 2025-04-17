@@ -15,6 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from typing import Dict, List, Any
+from datetime import datetime
 
 # Add the tinytroupe directory to the Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'tinytroupe'))
@@ -52,6 +53,33 @@ def run_monte_carlo_simulation(
     for iteration in range(config['simulation']['monte_carlo_iterations']):
         # Create unique simulation ID
         simulation_id = f"{world.name}_iter_{iteration}"
+        
+        # Reset world state for this iteration
+        world.state = {
+            'risk_exposure': 0.5,
+            'cost_pressure': 0.5,
+            'demand_volatility': 0.5,
+            'supply_risk': 0.5,
+            'reliability_requirement': 0.5,
+            'flexibility_requirement': 0.5,
+            'active_orders': [],
+            'completed_orders': [],
+            'order_lifecycle': {},  # Initialize as dictionary
+            'regional_metrics': {
+                region.value: {
+                    'risk': 0.5,
+                    'cost': 0.5,
+                    'demand': 0.5,
+                    'supply_risk': 0.5,
+                    'infrastructure': 0.7,
+                    'congestion': 0.3,
+                    'efficiency': 0.8,
+                    'flexibility': 0.7,
+                    'quality': 0.8
+                } for region in Region
+            }
+        }
+        world.current_datetime = datetime.now()  # Reset datetime for this iteration
         
         # Create agents with updated configurations
         coo_config = config['coo'].copy()
@@ -136,16 +164,28 @@ def run_monte_carlo_simulation(
             'delayed_orders': [],
             'service_level': [],
             'resilience_score': [],
-            'lead_time': []
+            'lead_time': [],
+            'total_orders': []  # Add tracking for total orders
         }
         
-        daily_order_status = []
+        # Track daily order states
+        daily_order_tracking = []
         
         for _ in range(config['simulation']['time_steps']):
             step_results = simulate_supply_chain_operation(
                 world=world,
                 config=config
             )
+            
+            # Store a snapshot of all orders for this day
+            active_orders = world.state.get('active_orders', [])
+            completed_orders = world.state.get('completed_orders', [])
+            all_orders = active_orders + completed_orders
+            daily_order_tracking.append(all_orders)
+            
+            # Calculate total orders for this step
+            step_results['total_orders'] = len(all_orders)
+            
             # Remove current_datetime from step_results before appending
             if 'current_datetime' in step_results:
                 del step_results['current_datetime']
@@ -153,11 +193,10 @@ def run_monte_carlo_simulation(
             
             # Track daily metrics
             for metric in daily_metrics:
-                daily_metrics[metric].append(step_results[metric])
-            
-            # Track daily order status separately
-            if 'order_status' in step_results:
-                daily_order_status.append(step_results['order_status'])
+                if metric in step_results:
+                    daily_metrics[metric].append(step_results[metric])
+                else:
+                    daily_metrics[metric].append(0)  # Default to 0 if metric not present
         
         # Aggregate results for this iteration
         iteration_aggregated = {}
@@ -166,14 +205,14 @@ def run_monte_carlo_simulation(
                 continue  # Skip order_status as it's handled separately
             
             values = [r[metric] for r in iteration_results]
-            if metric == 'delayed_orders':
-                # For delayed_orders, take the maximum value across time steps
+            if metric in ['delayed_orders', 'total_orders']:
+                # For these metrics, take the maximum value across time steps
                 iteration_aggregated[metric] = {
                     'mean': float(max(values)),
                     'std': float(np.std(values)),
                     'min': float(min(values)),
                     'max': float(max(values)),
-                    'daily': values  # Add daily values
+                    'daily': values
                 }
             else:
                 # For other metrics, take the mean across time steps
@@ -182,13 +221,11 @@ def run_monte_carlo_simulation(
                     'std': float(np.std(values)),
                     'min': float(np.min(values)),
                     'max': float(max(values)),
-                    'daily': values  # Add daily values
+                    'daily': values
                 }
         
-        # Add order status to iteration results
-        iteration_aggregated['order_status'] = {
-            'daily': daily_order_status
-        }
+        # Add order tracking to iteration results
+        iteration_aggregated['daily_order_tracking'] = daily_order_tracking
         
         results.append(iteration_aggregated)
         
@@ -199,8 +236,13 @@ def run_monte_carlo_simulation(
     # Aggregate results across all iterations
     aggregated_results = {}
     for metric in results[0].keys():
+        if metric == 'daily_order_tracking':
+            # For order tracking, just take the first iteration's values
+            aggregated_results[metric] = results[0][metric]
+            continue
+            
         if metric == 'order_status':
-            # For order status, just take the first iteration's values for simplicity
+            # For order status, just take the first iteration's values
             aggregated_results[metric] = results[0][metric]
             continue
         
@@ -218,7 +260,7 @@ def run_monte_carlo_simulation(
             'std': float(np.std(values)),
             'min': float(np.min(values)),
             'max': float(np.max(values)),
-            'daily': mean_daily  # Add mean daily values
+            'daily': mean_daily
         }
     
     return aggregated_results
