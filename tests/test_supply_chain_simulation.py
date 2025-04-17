@@ -271,12 +271,25 @@ class TestSupplyChainSimulation(unittest.TestCase):
                 if metric in ['daily_order_tracking', 'order_status', 'order_lifecycle']:
                     continue
                 if isinstance(values, dict) and 'mean' in values:
-                    writer.writerow([
-                        metric,
-                        values.get('mean', ''),
-                        values.get('std', ''),
-                        values.get('min', ''),
-                        values.get('max', '')
+                    # Format normalized metrics to 2 decimals, keep whole numbers for counts
+                    if metric in ['service_level', 'risk_exposure', 'flexibility_score', 
+                                'quality_score', 'resilience_score', 'lead_time',
+                                'recovery_time', 'supplier_risk', 'transportation_risk']:
+                        writer.writerow([
+                            metric,
+                                f"{values.get('mean', 0):.2f}",
+                                f"{values.get('std', 0):.2f}",
+                                f"{values.get('min', 0):.2f}",
+                                f"{values.get('max', 0):.2f}"
+                            ])
+                    else:
+                        # For non-normalized metrics (counts), use whole numbers
+                        writer.writerow([
+                            metric,
+                            str(int(values.get('mean', 0))),
+                            str(int(values.get('std', 0))),
+                            str(int(values.get('min', 0))),
+                            str(int(values.get('max', 0)))
                     ])
             
             # Second section: Order status summary
@@ -300,25 +313,21 @@ class TestSupplyChainSimulation(unittest.TestCase):
                         first_event = first_order_events[0]
                         fields = list(first_event.keys())
                         
-                        # Write header
-                        writer.writerow(['Order ID', 'Event Index'] + fields)
+                        # Write header with Event Index first, then Order ID, then remaining fields
+                        writer.writerow(['Event Index', 'Order ID'] + [f for f in fields if f not in ['Event Index', 'Order ID']])
                         
                         # Write data for each order and each event
                         for order_id, events in data['order_lifecycle'].items():
                             for event_idx, event in enumerate(events):
-                                row = [order_id, event_idx]
-                                row.extend(str(event.get(field, '')) for field in fields)
-                                writer.writerow(row)
-            
-            # Fourth section: Daily tracking data (if exists in old format)
-            if 'daily_order_tracking' in data and isinstance(data['daily_order_tracking'], list) and data['daily_order_tracking']:
-                writer.writerow([])  # Empty row for separation
-                writer.writerow(['Daily Tracking Data'])
-                
-                # Write the data as is, with each list item on a new row
-                for item in data['daily_order_tracking']:
-                    if isinstance(item, dict):
-                        writer.writerow([f"{k}: {v}" for k, v in item.items()])
+                                # Format order_id to only contain numbers after ORD_
+                                formatted_order_id = f"ORD_{str(event_idx).zfill(8)}"
+                                
+                                # Create row starting with Event Index and Order ID
+                                row = [event_idx, formatted_order_id]
+                                # Add remaining fields
+                                row.extend(str('NA' if event.get(field) is None else event.get(field, 'NA')) 
+                                         for field in fields if field not in ['Event Index', 'Order ID'])
+                                writer.writerow(row)  # Write each row inside the loop
 
     def _save_results_to_csv(self, results: Dict[str, Any], results_df: pd.DataFrame, scenario_name: str):
         """Save simulation results to CSV files."""
@@ -329,39 +338,6 @@ class TestSupplyChainSimulation(unittest.TestCase):
         # Save results with full order tracking
         results_file = os.path.join(results_dir, f"{scenario_name}_results.csv")
         self._dict_to_csv(results, results_file)
-        
-        # Save detailed order lifecycle data if available
-        if 'order_lifecycle' in results:
-            lifecycle_file = os.path.join(results_dir, f"{scenario_name}_order_lifecycle.csv")
-            with open(lifecycle_file, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow([
-                    'Order ID', 'Event Index', 'Created At', 'Current Status', 'Current Location',
-                    'Production Time', 'Transit Time', 'Delay Time',
-                    'Expected Delivery', 'Actual Delivery', 'Transportation Mode',
-                    'Source Region', 'Destination Region', 'Simulation Day',
-                    'Is Delayed', 'Is On Time'
-                ])
-                for order_id, events in results['order_lifecycle'].items():
-                    for event_idx, event in enumerate(events):
-                        writer.writerow([
-                            order_id,
-                            event_idx,
-                            event.get('created_at', ''),
-                            event.get('current_status', ''),
-                            event.get('current_location', ''),
-                            event.get('production_time', ''),
-                            event.get('transit_time', ''),
-                            event.get('delay_time', ''),
-                            event.get('expected_delivery', ''),
-                            event.get('actual_delivery', ''),
-                            event.get('transportation_mode', ''),
-                            event.get('source_region', ''),
-                            event.get('destination_region', ''),
-                            event.get('simulation_day', ''),
-                            event.get('is_delayed', ''),
-                            event.get('is_on_time', '')
-                        ])
         
         # Save DataFrames to CSV if they exist
         if not results_df.empty:
@@ -406,72 +382,84 @@ class TestSupplyChainSimulation(unittest.TestCase):
         results_dir = os.path.join("test_results", f"simulation_{self.simulation_id}")
         os.makedirs(results_dir, exist_ok=True)
 
-        analysis = {
-            'baseline': baseline_results,
-            'improved': improved_results
-        }
-
         with open(os.path.join(results_dir, "results_summary.md"), 'w') as f:
             f.write("# Supply Chain Simulation Results\n\n")
-            f.write("## Baseline Scenario\n\n")
-            f.write("### Key Metrics\n")
-            service_level = baseline_results.get('service_level', {}).get('mean', 0)
-            resilience_score = baseline_results.get('resilience_score', {}).get('mean', 0)
-            f.write("- Service Level: {:.3f}\n".format(service_level))
-            f.write("- Resilience Score: {:.3f}\n".format(resilience_score))
-            if 'total_interactions' in baseline_results:
-                f.write("- Total Interactions: {}\n".format(baseline_results['total_interactions']))
-
-            f.write("\n## Improved Scenario\n\n")
-            f.write("### Key Metrics\n")
-            service_level_improved = improved_results.get('service_level', {}).get('mean', 0)
-            resilience_score_improved = improved_results.get('resilience_score', {}).get('mean', 0)
-            f.write("- Service Level: {:.3f}\n".format(service_level_improved))
-            f.write("- Resilience Score: {:.3f}\n".format(resilience_score_improved))
-            if 'total_interactions' in improved_results:
-                f.write("- Total Interactions: {}\n".format(improved_results['total_interactions']))
-
-            f.write("\n## Improvements\n\n")
-            f.write("### Service Level\n")
-            service_level_change = service_level_improved - service_level
-            f.write("- Absolute Change: {:.3f}\n".format(service_level_change))
-            if service_level != 0:
-                relative_change = (service_level_change / service_level) * 100
-                f.write("- Relative Change: {:.1f}%\n".format(relative_change))
-
-            f.write("\n### Resilience Score\n")
-            resilience_change = resilience_score_improved - resilience_score
-            f.write("- Absolute Change: {:.3f}\n".format(resilience_change))
-            if resilience_score != 0:
-                relative_change = (resilience_change / resilience_score) * 100
-                f.write("- Relative Change: {:.1f}%\n".format(relative_change))
-
-            # Add order status summary
-            f.write("\n## Order Status Summary\n\n")
-            f.write("### Baseline\n")
+            
+            # Core Metrics Comparison Table
+            f.write("## Core Metrics Comparison\n\n")
+            f.write("| Metric | Baseline | Improved | Absolute Change | Relative Change |\n")
+            f.write("|--------|-----------|-----------|-----------------|----------------|\n")
+            
+            # List of core metrics to compare
+            core_metrics = [
+                'service_level', 'risk_exposure', 'flexibility_score', 
+                'quality_score', 'resilience_score', 'lead_time',
+                'recovery_time', 'supplier_risk', 'transportation_risk'
+            ]
+            
+            for metric in core_metrics:
+                baseline_value = baseline_results.get(metric, {}).get('mean', 0)
+                improved_value = improved_results.get(metric, {}).get('mean', 0)
+                abs_change = improved_value - baseline_value
+                rel_change = (abs_change / baseline_value * 100) if baseline_value != 0 else float('inf')
+                
+                # Format the values
+                baseline_str = f"{baseline_value:.3f}"
+                improved_str = f"{improved_value:.3f}"
+                abs_change_str = f"{abs_change:+.3f}"
+                rel_change_str = f"{rel_change:+.1f}%" if rel_change != float('inf') else "N/A"
+                
+                metric_name = metric.replace('_', ' ').title()
+                f.write(f"| {metric_name} | {baseline_str} | {improved_str} | {abs_change_str} | {rel_change_str} |\n")
+            
+            # Order Status Comparison
+            f.write("\n## Order Status Comparison\n\n")
+            f.write("| Status | Baseline | Improved | Change |\n")
+            f.write("|--------|-----------|-----------|--------|\n")
+            
+            # Get all possible statuses from both scenarios
+            all_statuses = set()
             if 'order_status' in baseline_results:
-                order_status = baseline_results['order_status']
-                f.write("- Created Orders: {}\n".format(order_status.get('created', 0)))
-                f.write("- In Production: {}\n".format(order_status.get('in_production', 0)))
-                f.write("- Ready for Shipping: {}\n".format(order_status.get('ready_for_shipping', 0)))
-                f.write("- In Transit: {}\n".format(order_status.get('in_transit', 0)))
-                f.write("- Delayed: {}\n".format(order_status.get('delayed', 0)))
-                f.write("- Delivered: {}\n".format(order_status.get('delivered', 0)))
-
-            f.write("\n### Improved\n")
+                all_statuses.update(baseline_results['order_status'].keys())
             if 'order_status' in improved_results:
-                order_status = improved_results['order_status']
-                f.write("- Created Orders: {}\n".format(order_status.get('created', 0)))
-                f.write("- In Production: {}\n".format(order_status.get('in_production', 0)))
-                f.write("- Ready for Shipping: {}\n".format(order_status.get('ready_for_shipping', 0)))
-                f.write("- In Transit: {}\n".format(order_status.get('in_transit', 0)))
-                f.write("- Delayed: {}\n".format(order_status.get('delayed', 0)))
-                f.write("- Delivered: {}\n".format(order_status.get('delivered', 0)))
+                all_statuses.update(improved_results['order_status'].keys())
+            
+            for status in sorted(all_statuses):
+                baseline_count = baseline_results.get('order_status', {}).get(status, 0)
+                improved_count = improved_results.get('order_status', {}).get(status, 0)
+                change = improved_count - baseline_count
+                
+                status_name = status.replace('_', ' ').title()
+                f.write(f"| {status_name} | {baseline_count} | {improved_count} | {change:+d} |\n")
+            
+            # Summary Statistics
+            f.write("\n## Summary Statistics\n\n")
+            
+            # Calculate total orders for both scenarios
+            baseline_total = sum(baseline_results.get('order_status', {}).values())
+            improved_total = sum(improved_results.get('order_status', {}).values())
+            
+            f.write(f"- Total Orders Processed:\n")
+            f.write(f"  - Baseline: {baseline_total}\n")
+            f.write(f"  - Improved: {improved_total}\n")
+            f.write(f"  - Difference: {improved_total - baseline_total:+d}\n\n")
+            
+            # Add completion rate
+            baseline_completed = baseline_results.get('order_status', {}).get('delivered', 0)
+            improved_completed = improved_results.get('order_status', {}).get('delivered', 0)
+            
+            baseline_completion_rate = (baseline_completed / baseline_total * 100) if baseline_total > 0 else 0
+            improved_completion_rate = (improved_completed / improved_total * 100) if improved_total > 0 else 0
+            
+            f.write(f"- Order Completion Rate:\n")
+            f.write(f"  - Baseline: {baseline_completion_rate:.1f}%\n")
+            f.write(f"  - Improved: {improved_completion_rate:.1f}%\n")
+            f.write(f"  - Difference: {improved_completion_rate - baseline_completion_rate:+.1f}%\n")
 
         # Save DataFrames to CSV if they exist
-        if baseline_df is not None:
+        if baseline_df is not None and not baseline_df.empty:
             baseline_df.to_csv(os.path.join(results_dir, "baseline_metrics.csv"))
-        if improved_df is not None:
+        if improved_df is not None and not improved_df.empty:
             improved_df.to_csv(os.path.join(results_dir, "improved_metrics.csv"))
 
     def _print_results(self, results, scenario_name):
@@ -505,6 +493,108 @@ class TestSupplyChainSimulation(unittest.TestCase):
                 print(f"  Min: {values['min']:.3f}")
                 print(f"  Max: {values['max']:.3f}")
 
+    def _save_interactions_to_markdown(self, baseline_interactions, improved_interactions, results_dir):
+        """Save agent interactions to a markdown file with a structured format."""
+        with open(os.path.join(results_dir, "agent_interactions.md"), 'w') as f:
+            f.write("# Supply Chain Agent Interactions\n\n")
+            
+            # Function to process interactions for a scenario
+            def process_scenario_interactions(interactions, scenario_name):
+                f.write(f"## {scenario_name} Scenario\n\n")
+                
+                # Group interactions by agent
+                agent_interactions = {}
+                for interaction in interactions:
+                    agent_name = interaction.get('agent_name', 'Unknown Agent')
+                    if agent_name not in agent_interactions:
+                        agent_interactions[agent_name] = []
+                    agent_interactions[agent_name].append(interaction)
+                
+                # Write interactions for each agent
+                for agent_name, agent_data in sorted(agent_interactions.items()):
+                    f.write(f"### {agent_name}\n\n")
+                    f.write("| Timestamp | Action Type | Target | Content |\n")
+                    f.write("|-----------|-------------|---------|----------|\n")
+                    
+                    # Sort interactions by timestamp
+                    sorted_interactions = sorted(agent_data, key=lambda x: x.get('timestamp', ''))
+                    
+                    for interaction in sorted_interactions:
+                        timestamp = interaction.get('timestamp', '')
+                        action_type = interaction.get('action_type', '')
+                        target = interaction.get('target', '')
+                        content = interaction.get('content', '')
+                        
+                        # Clean and format content for markdown table
+                        content = content.replace('\n', ' ').replace('|', '\\|')
+                        if len(content) > 100:
+                            content = content[:97] + '...'
+                            
+                        f.write(f"| {timestamp} | {action_type} | {target} | {content} |\n")
+                    
+                    f.write("\n")
+                
+                # Add interaction statistics
+                f.write("### Interaction Statistics\n\n")
+                total_interactions = len(interactions)
+                unique_agents = len(agent_interactions)
+                action_types = {}
+                for interaction in interactions:
+                    action = interaction.get('action_type', 'Unknown')
+                    action_types[action] = action_types.get(action, 0) + 1
+                
+                f.write(f"- Total Interactions: {total_interactions}\n")
+                f.write(f"- Unique Agents: {unique_agents}\n")
+                f.write("- Action Type Distribution:\n")
+                for action, count in sorted(action_types.items()):
+                    percentage = (count / total_interactions) * 100
+                    f.write(f"  - {action}: {count} ({percentage:.1f}%)\n")
+                f.write("\n")
+            
+            # Process both scenarios
+            if baseline_interactions:
+                process_scenario_interactions(baseline_interactions, "Baseline")
+            
+            if improved_interactions:
+                process_scenario_interactions(improved_interactions, "Improved")
+            
+            # Add comparison section if both scenarios exist
+            if baseline_interactions and improved_interactions:
+                f.write("## Scenario Comparison\n\n")
+                baseline_count = len(baseline_interactions)
+                improved_count = len(improved_interactions)
+                interaction_change = improved_count - baseline_count
+                percentage_change = ((improved_count - baseline_count) / baseline_count * 100) if baseline_count > 0 else float('inf')
+                
+                f.write("### Interaction Volume\n\n")
+                f.write(f"- Baseline Interactions: {baseline_count}\n")
+                f.write(f"- Improved Interactions: {improved_count}\n")
+                f.write(f"- Change: {interaction_change:+d} ({percentage_change:+.1f}%)\n\n")
+                
+                # Compare action type distributions
+                f.write("### Action Type Changes\n\n")
+                f.write("| Action Type | Baseline | Improved | Change |\n")
+                f.write("|-------------|-----------|-----------|--------|\n")
+                
+                # Get all action types
+                action_types = set()
+                for interaction in baseline_interactions + improved_interactions:
+                    action_types.add(interaction.get('action_type', 'Unknown'))
+                
+                # Count occurrences in each scenario
+                baseline_actions = {}
+                improved_actions = {}
+                for action in action_types:
+                    baseline_actions[action] = sum(1 for i in baseline_interactions if i.get('action_type') == action)
+                    improved_actions[action] = sum(1 for i in improved_interactions if i.get('action_type') == action)
+                
+                # Write comparison table
+                for action in sorted(action_types):
+                    baseline_count = baseline_actions.get(action, 0)
+                    improved_count = improved_actions.get(action, 0)
+                    change = improved_count - baseline_count
+                    f.write(f"| {action} | {baseline_count} | {improved_count} | {change:+d} |\n")
+
     def test_quick_simulation(self):
         """Test running a quick simulation with baseline and improved scenarios."""
         # Run baseline simulation
@@ -520,9 +610,33 @@ class TestSupplyChainSimulation(unittest.TestCase):
         # Extract agent interactions
         baseline_interactions = self.results_extractor.extract_results_from_agents(
             agents=self.world.agents,
-            extraction_objective="Extract all interactions, including stimuli received and actions performed",
-            fields=["agent_name", "type", "action_type", "target", "content", "timestamp", "role", "region"]
+            extraction_objective="Extract all agent interactions including orders processed, communications, and actions taken",
+            fields=[
+                "agent_name", 
+                "type", 
+                "action_type", 
+                "target", 
+                "content", 
+                "timestamp", 
+                "role", 
+                "region",
+                "order_id",
+                "status",
+                "result"
+            ],
+            fields_hints={
+                "action_type": "The type of action performed (e.g., ASSIGN_FACILITY, PROCESS_ORDER, DELIVER_ORDER)",
+                "target": "The target agent or order being acted upon",
+                "content": "Detailed description of the action or interaction",
+                "status": "Current status of the order or action",
+                "result": "Outcome of the action"
+            }
         )
+        
+        # Add logging to check what we're getting
+        print("\nBaseline Interactions:", len(baseline_interactions) if baseline_interactions else 0)
+        if baseline_interactions:
+            print("Sample baseline interaction:", baseline_interactions[0])
         
         # Initialize metrics dictionary if None
         if not baseline_results.get('metrics'):
@@ -542,45 +656,21 @@ class TestSupplyChainSimulation(unittest.TestCase):
         # Create DataFrame with proper initialization
         baseline_df = pd.DataFrame(baseline_interactions if baseline_interactions else [])
         
-        # Save results
-        self._save_results_to_csv(baseline_results, baseline_df, "baseline")
-        
         # Clean up agents between runs
         print("\nCleaning up agents before improved scenario...")
         
         # First, get a list of all agents in the world
         agents_to_remove = list(self.world.agents)
         
-        # Remove each agent individually to ensure proper cleanup
+        # Then remove each agent
         for agent in agents_to_remove:
             try:
                 self.world.remove_agent(agent)
-                print(f"Removed agent {agent.name} from world")
+                print(f"Removed agent {agent.name}")
             except Exception as e:
-                print(f"Error removing agent {agent.name}: {str(e)}")
+                print(f"Warning: Could not remove agent {agent.name}: {e}")
         
-        # Clear the global agent registry
-        if hasattr(TinyPerson, 'all_agents'):
-            agent_count = len(TinyPerson.all_agents)
-            agent_names = list(TinyPerson.all_agents.keys())
-            TinyPerson.all_agents.clear()
-            print(f"Cleaned up {agent_count} agents from global registry: {agent_names}")
-        
-        # Reset world state
-        self.world.state['active_orders'] = []
-        self.world.state['completed_orders'] = []
-        self.world.state['failed_orders'] = []
-        print("Reset world state")
-        
-        # Verify cleanup
-        if len(self.world.agents) > 0:
-            print(f"Warning: {len(self.world.agents)} agents still in world")
-        if len(self.world.name_to_agent) > 0:
-            print(f"Warning: {len(self.world.name_to_agent)} agents still in name_to_agent map")
-        if hasattr(TinyPerson, 'all_agents') and len(TinyPerson.all_agents) > 0:
-            print(f"Warning: {len(TinyPerson.all_agents)} agents still in global registry")
-        
-        print("\n2. Running improved scenario...")
+        # Run improved simulation with all resilience strategies enabled
         improved_results = run_monte_carlo_simulation(
             config=self.config,
             world=self.world,
@@ -589,32 +679,56 @@ class TestSupplyChainSimulation(unittest.TestCase):
             has_flexible_transportation=True,
             has_regional_flexibility=True
         )
-        print("\nImproved Results:")
-        self._print_results(improved_results, "Improved")
         
-        # Extract agent interactions from improved run
-        print("\nExtracting improved agent interactions...")
+        # Extract agent interactions
         improved_interactions = self.results_extractor.extract_results_from_agents(
             agents=self.world.agents,
-            extraction_objective="Extract all interactions, including stimuli received and actions performed",
-            fields=["agent_name", "type", "action_type", "target", "content", "timestamp", "role", "region"]
+            extraction_objective="Extract all agent interactions including orders processed, communications, and actions taken",
+            fields=[
+                "agent_name", 
+                "type", 
+                "action_type", 
+                "target", 
+                "content", 
+                "timestamp", 
+                "role", 
+                "region",
+                "order_id",
+                "status",
+                "result"
+            ],
+            fields_hints={
+                "action_type": "The type of action performed (e.g., ASSIGN_FACILITY, PROCESS_ORDER, DELIVER_ORDER)",
+                "target": "The target agent or order being acted upon",
+                "content": "Detailed description of the action or interaction",
+                "status": "Current status of the order or action",
+                "result": "Outcome of the action"
+            }
         )
+        
+        # Add logging to check what we're getting
+        print("\nImproved Interactions:", len(improved_interactions) if improved_interactions else 0)
+        if improved_interactions:
+            print("Sample improved interaction:", improved_interactions[0])
         
         # Create DataFrame with proper initialization
         improved_df = pd.DataFrame(improved_interactions if improved_interactions else [])
         
-        # Save results
-        self._save_results_to_csv(improved_results, improved_df, "improved")
-        
-        # Compare improvements
+        # Compare improvements (this also verifies the results)
         self._compare_results(baseline_results, improved_results)
         
         # Only save results if all verifications pass
         print("\nAll verifications passed. Creating results directory and saving data...")
         
-        # Create results directory only after all verifications pass
+        # Create results directory
         results_dir = os.path.join("test_results", f"simulation_{self.simulation_id}")
         os.makedirs(results_dir, exist_ok=True)
+        
+        # Save all results
+        self._save_results_to_csv(baseline_results, baseline_df, "baseline")
+        self._save_results_to_csv(improved_results, improved_df, "improved")
+        self._save_results_to_markdown(baseline_results, improved_results, baseline_df, improved_df)
+        self._save_interactions_to_markdown(baseline_interactions, improved_interactions, results_dir)
         
         # Save detailed agent interactions
         if baseline_interactions:

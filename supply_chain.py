@@ -955,7 +955,7 @@ def create_production_facility_agent(name: str, config: Dict[str, Any], simulati
                     
                     # Check if production is complete based on lead time
                     if order.production_time >= self._persona['capabilities']['lead_time']:
-                        # Perform quality check
+                    # Perform quality check
                         quality_check = random.random() < self._persona['capabilities']['quality_rate']
                         
                         if quality_check:
@@ -1209,13 +1209,13 @@ def simulate_supply_chain_operation(world: World, config: Dict[str, Any]) -> Dic
             response = manager.act(world.state)
             if response:
                 interaction_log.append({
-                    'timestamp': world.state['current_datetime'],
+                        'timestamp': world.state['current_datetime'],
                     'agent': manager.name,
                     'role': 'Regional Manager',
-                    'region': manager._persona['occupation']['region'],
-                    'action': 'Process orders',
-                    'details': response
-                })
+                        'region': manager._persona['occupation']['region'],
+                        'action': 'Process orders',
+                        'details': response
+                    })
         except Exception as e:
             logger.error(f"Error in Regional Manager {manager.name}: {str(e)}")
     
@@ -1270,8 +1270,8 @@ def simulate_supply_chain_operation(world: World, config: Dict[str, Any]) -> Dic
     # Clean up completed and failed orders
     for order in active_orders[:]:  # Use slice to avoid modifying list while iterating
         if order.status == OrderStatus.DELIVERED:
-            active_orders.remove(order)
-            completed_orders.append(order)
+                        active_orders.remove(order)
+                        completed_orders.append(order)
         elif order.quality_check_passed is False:  # Check the quality_check_passed flag instead of status
             active_orders.remove(order)
             failed_orders.append(order)
@@ -1312,8 +1312,10 @@ def _generate_orders(current_datetime: datetime, config: Dict[str, Any]) -> List
                     # Randomly make some orders have tighter deadlines
                     if random.random() < 0.3:  # 30% chance of tight deadline
                         delivery_days = max(1, delivery_days - 1)
+                    # Generate 8-digit unique ID
+                    order_id = f"ORD_{str(uuid.uuid4())[:8]}"
                     order = Order(
-                        id=f"ORD_{current_datetime.strftime('%Y%m%d_%H%M%S')}_{source.value}_{dest.value}",
+                        id=order_id,
                         product_type="Standard",
                         quantity=demand,
                         source_region=source,
@@ -1549,7 +1551,7 @@ def _calculate_order_based_metrics(completed_orders: List[Order], active_orders:
     # Calculate supplier risk
     supplier_delays = [
         order for order in completed_orders + active_orders 
-        if order.status == OrderStatus.DELAYED and 
+                      if order.status == OrderStatus.DELAYED and 
         order.status in [OrderStatus.PRODUCTION, OrderStatus.READY_FOR_SHIPPING]
     ]
     metrics['supplier_risk'] = len(supplier_delays) / (len(completed_orders) + len(active_orders)) if completed_orders or active_orders else 0.0
@@ -1557,7 +1559,7 @@ def _calculate_order_based_metrics(completed_orders: List[Order], active_orders:
     # Calculate transportation risk
     transport_delays = [
         order for order in completed_orders + active_orders 
-        if order.status == OrderStatus.DELAYED and 
+                       if order.status == OrderStatus.DELAYED and 
         order.status == OrderStatus.IN_TRANSIT
     ]
     metrics['transportation_risk'] = len(transport_delays) / (len(completed_orders) + len(active_orders)) if completed_orders or active_orders else 0.0
