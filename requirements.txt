@@ -152,8 +152,8 @@ pypandoc==1.15
 pyparsing==3.2.1
 pypdf==5.4.0
 PySocks==1.7.1
-pytest==8.3.5
-pytest-cov==6.0.0
+pytest>=7.0.0
+pytest-cov>=3.0.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 python-json-logger==3.3.0
@@ -216,3 +216,8 @@ widgetsnbextension==4.0.13
 wrapt==1.17.2
 wsproto==1.2.0
 yarl==1.18.3
+
+# Development dependencies
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.910
