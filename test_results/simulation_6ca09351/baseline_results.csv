@@ -1,0 +1,111 @@
+Core Metrics
+Metric,Mean,Std Dev,Min,Max
+resilience_score,0.72,0.12,0.60,0.84
+recovery_time,0.49,0.21,0.28,0.70
+service_level,0.86,0.06,0.80,0.92
+total_cost,0,0,0,0
+inventory_cost,0,0,0,0
+transportation_cost,0,0,0,0
+risk_exposure,0.35,0.15,0.20,0.50
+supplier_risk,0.28,0.12,0.16,0.40
+transportation_risk,0.35,0.15,0.20,0.50
+lead_time,0.49,0.21,0.28,0.70
+flexibility_score,0.72,0.12,0.60,0.84
+quality_score,0.86,0.06,0.80,0.92
+total_interactions,25,25,0,50
+unique_interacting_agents,25,25,0,50
+total_orders,20,0,20,20
+
+Order Status Summary
+Status,Count
+new,2
+production,2
+ready,2
+in_transit,2
+delivered,12
+cancelled,0
+delayed,0
+failed,0
+
+Order Lifecycle Data
+Event Index,Order ID,created_at,current_status,current_location,production_time,transit_time,delay_time,expected_delivery,actual_delivery,transportation_mode,source_region,destination_region,simulation_day,is_delayed,is_on_time
+0,ORD_454e0543,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,0,False,NA
+1,ORD_454e0543,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,1,False,NA
+2,ORD_454e0543,2025-04-17 17:19:08,READY,North America,3,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,2,False,NA
+3,ORD_454e0543,2025-04-17 17:19:08,IN_TRANSIT,North America,3,1,0,2025-04-18 17:19:08,NA,Air,North America,Europe,3,False,NA
+4,ORD_454e0543,2025-04-17 17:19:08,DELIVERED,North America,3,1,0,2025-04-18 17:19:08,2025-04-17 17:19:08,Air,North America,Europe,4,False,True
+5,ORD_2b261fe4,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,0,False,NA
+6,ORD_2b261fe4,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,1,False,NA
+7,ORD_2b261fe4,2025-04-17 17:19:08,READY,Europe,3,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,2,False,NA
+8,ORD_2b261fe4,2025-04-17 17:19:08,IN_TRANSIT,Europe,3,1,0,2025-04-18 17:19:08,NA,Air,Europe,North America,3,False,NA
+9,ORD_2b261fe4,2025-04-17 17:19:08,DELIVERED,Europe,3,1,0,2025-04-18 17:19:08,2025-04-17 17:19:08,Air,Europe,North America,4,False,True
+10,ORD_c403b38c,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,1,False,NA
+11,ORD_c403b38c,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,2,False,NA
+12,ORD_c403b38c,2025-04-17 17:19:08,READY,North America,3,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,3,False,NA
+13,ORD_c403b38c,2025-04-17 17:19:08,IN_TRANSIT,North America,3,1,0,2025-04-19 17:19:08,NA,Air,North America,Europe,4,False,NA
+14,ORD_c403b38c,2025-04-17 17:19:08,DELIVERED,North America,3,1,0,2025-04-19 17:19:08,2025-04-17 17:19:08,Air,North America,Europe,5,False,True
+15,ORD_36f916b4,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,1,False,NA
+16,ORD_36f916b4,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,2,False,NA
+17,ORD_36f916b4,2025-04-17 17:19:08,READY,Europe,3,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,3,False,NA
+18,ORD_36f916b4,2025-04-17 17:19:08,IN_TRANSIT,Europe,3,1,0,2025-04-18 17:19:08,NA,Air,Europe,North America,4,False,NA
+19,ORD_36f916b4,2025-04-17 17:19:08,DELIVERED,Europe,3,1,0,2025-04-18 17:19:08,2025-04-17 17:19:08,Air,Europe,North America,5,False,True
+20,ORD_febc4ead,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,2,False,NA
+21,ORD_febc4ead,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,3,False,NA
+22,ORD_febc4ead,2025-04-17 17:19:08,READY,North America,3,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,4,False,NA
+23,ORD_febc4ead,2025-04-17 17:19:08,IN_TRANSIT,North America,3,1,0,2025-04-19 17:19:08,NA,Air,North America,Europe,5,False,NA
+24,ORD_febc4ead,2025-04-17 17:19:08,DELIVERED,North America,3,1,0,2025-04-19 17:19:08,2025-04-17 17:19:08,Air,North America,Europe,6,False,True
+25,ORD_41f64971,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,2,False,NA
+26,ORD_41f64971,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,3,False,NA
+27,ORD_41f64971,2025-04-17 17:19:08,READY,Europe,3,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,4,False,NA
+28,ORD_41f64971,2025-04-17 17:19:08,IN_TRANSIT,Europe,3,1,0,2025-04-19 17:19:08,NA,Air,Europe,North America,5,False,NA
+29,ORD_41f64971,2025-04-17 17:19:08,DELIVERED,Europe,3,1,0,2025-04-19 17:19:08,2025-04-17 17:19:08,Air,Europe,North America,6,False,True
+30,ORD_4e86bea3,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,3,False,NA
+31,ORD_4e86bea3,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,4,False,NA
+32,ORD_4e86bea3,2025-04-17 17:19:08,READY,North America,3,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,5,False,NA
+33,ORD_4e86bea3,2025-04-17 17:19:08,IN_TRANSIT,North America,3,1,0,2025-04-19 17:19:08,NA,Air,North America,Europe,6,False,NA
+34,ORD_4e86bea3,2025-04-17 17:19:08,DELIVERED,North America,3,1,0,2025-04-19 17:19:08,2025-04-17 17:19:08,Air,North America,Europe,7,False,True
+35,ORD_b2e88ee1,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,3,False,NA
+36,ORD_b2e88ee1,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,4,False,NA
+37,ORD_b2e88ee1,2025-04-17 17:19:08,READY,Europe,3,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,5,False,NA
+38,ORD_b2e88ee1,2025-04-17 17:19:08,IN_TRANSIT,Europe,3,1,0,2025-04-19 17:19:08,NA,Air,Europe,North America,6,False,NA
+39,ORD_b2e88ee1,2025-04-17 17:19:08,DELIVERED,Europe,3,1,0,2025-04-19 17:19:08,2025-04-17 17:19:08,Air,Europe,North America,7,False,True
+40,ORD_1c572579,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,4,False,NA
+41,ORD_1c572579,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,5,False,NA
+42,ORD_1c572579,2025-04-17 17:19:08,READY,North America,3,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,6,False,NA
+43,ORD_1c572579,2025-04-17 17:19:08,IN_TRANSIT,North America,3,1,0,2025-04-18 17:19:08,NA,Air,North America,Europe,7,False,NA
+44,ORD_1c572579,2025-04-17 17:19:08,DELIVERED,North America,3,1,0,2025-04-18 17:19:08,2025-04-17 17:19:08,Air,North America,Europe,8,False,True
+45,ORD_8aa45a19,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,4,False,NA
+46,ORD_8aa45a19,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,5,False,NA
+47,ORD_8aa45a19,2025-04-17 17:19:08,READY,Europe,3,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,6,False,NA
+48,ORD_8aa45a19,2025-04-17 17:19:08,IN_TRANSIT,Europe,3,1,0,2025-04-18 17:19:08,NA,Air,Europe,North America,7,False,NA
+49,ORD_8aa45a19,2025-04-17 17:19:08,DELIVERED,Europe,3,1,0,2025-04-18 17:19:08,2025-04-17 17:19:08,Air,Europe,North America,8,False,True
+50,ORD_a8a1daf6,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,5,False,NA
+51,ORD_a8a1daf6,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,6,False,NA
+52,ORD_a8a1daf6,2025-04-17 17:19:08,READY,North America,3,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,7,False,NA
+53,ORD_a8a1daf6,2025-04-17 17:19:08,IN_TRANSIT,North America,3,1,0,2025-04-19 17:19:08,NA,Air,North America,Europe,8,False,NA
+54,ORD_a8a1daf6,2025-04-17 17:19:08,DELIVERED,North America,3,1,0,2025-04-19 17:19:08,2025-04-17 17:19:08,Air,North America,Europe,9,False,True
+55,ORD_e37a341a,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,5,False,NA
+56,ORD_e37a341a,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,6,False,NA
+57,ORD_e37a341a,2025-04-17 17:19:08,READY,Europe,3,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,7,False,NA
+58,ORD_e37a341a,2025-04-17 17:19:08,IN_TRANSIT,Europe,3,1,0,2025-04-19 17:19:08,NA,Air,Europe,North America,8,False,NA
+59,ORD_e37a341a,2025-04-17 17:19:08,DELIVERED,Europe,3,1,0,2025-04-19 17:19:08,2025-04-17 17:19:08,Air,Europe,North America,9,False,True
+60,ORD_36f83f47,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,6,False,NA
+61,ORD_36f83f47,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,7,False,NA
+62,ORD_36f83f47,2025-04-17 17:19:08,READY,North America,3,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,8,False,NA
+63,ORD_36f83f47,2025-04-17 17:19:08,IN_TRANSIT,North America,3,1,0,2025-04-19 17:19:08,NA,Air,North America,Europe,9,False,NA
+64,ORD_1721a4e0,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,6,False,NA
+65,ORD_1721a4e0,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,7,False,NA
+66,ORD_1721a4e0,2025-04-17 17:19:08,READY,Europe,3,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,8,False,NA
+67,ORD_1721a4e0,2025-04-17 17:19:08,IN_TRANSIT,Europe,3,1,0,2025-04-19 17:19:08,NA,Air,Europe,North America,9,False,NA
+68,ORD_86062d5a,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,7,False,NA
+69,ORD_86062d5a,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,8,False,NA
+70,ORD_86062d5a,2025-04-17 17:19:08,READY,North America,3,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,9,False,NA
+71,ORD_ff4d8d1d,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,7,False,NA
+72,ORD_ff4d8d1d,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,8,False,NA
+73,ORD_ff4d8d1d,2025-04-17 17:19:08,READY,Europe,3,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,9,False,NA
+74,ORD_84228dfb,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,8,False,NA
+75,ORD_84228dfb,2025-04-17 17:19:08,PRODUCTION,North America,2,0,0,2025-04-19 17:19:08,NA,NA,North America,Europe,9,False,NA
+76,ORD_e0ab862a,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,8,False,NA
+77,ORD_e0ab862a,2025-04-17 17:19:08,PRODUCTION,Europe,2,0,0,2025-04-18 17:19:08,NA,NA,Europe,North America,9,False,NA
+78,ORD_05cb7771,2025-04-17 17:19:08,NEW,North America,0,0,0,2025-04-18 17:19:08,NA,NA,North America,Europe,9,False,NA
+79,ORD_321a2118,2025-04-17 17:19:08,NEW,Europe,0,0,0,2025-04-19 17:19:08,NA,NA,Europe,North America,9,False,NA

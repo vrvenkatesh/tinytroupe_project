@@ -258,76 +258,91 @@ class TestSupplyChainSimulation(unittest.TestCase):
             self.output_plot.close()
             self.output_plot = None
 
-    def _dict_to_csv(self, data: Dict[str, Any], filename: str):
-        """Save dictionary data to a CSV file."""
-        with open(filename, 'w', newline='') as f:
+    def _dict_to_csv(self, data: Dict[str, Any], output_file: str) -> None:
+        """Save dictionary data to CSV file."""
+        with open(output_file, 'w', newline='') as f:
             writer = csv.writer(f)
             
-            # First section: Core metrics
+            # Write Core Metrics section
             writer.writerow(['Core Metrics'])
             writer.writerow(['Metric', 'Mean', 'Std Dev', 'Min', 'Max'])
-            for metric, values in data.items():
-                # Skip non-metric data
-                if metric in ['daily_order_tracking', 'order_status', 'order_lifecycle']:
-                    continue
-                if isinstance(values, dict) and 'mean' in values:
-                    # Format normalized metrics to 2 decimals, keep whole numbers for counts
-                    if metric in ['service_level', 'risk_exposure', 'flexibility_score', 
-                                'quality_score', 'resilience_score', 'lead_time',
-                                'recovery_time', 'supplier_risk', 'transportation_risk']:
+            core_metrics = [
+                'resilience_score', 'recovery_time', 'service_level',
+                'total_cost', 'inventory_cost', 'transportation_cost',
+                'risk_exposure', 'supplier_risk', 'transportation_risk',
+                'lead_time', 'flexibility_score', 'quality_score',
+                'total_interactions', 'unique_interacting_agents', 'total_orders'
+            ]
+            for metric in core_metrics:
+                if metric in data:
+                    metric_data = data[metric]
+                    if isinstance(metric_data, dict) and all(k in metric_data for k in ['mean', 'std', 'min', 'max']):
                         writer.writerow([
                             metric,
-                                f"{values.get('mean', 0):.2f}",
-                                f"{values.get('std', 0):.2f}",
-                                f"{values.get('min', 0):.2f}",
-                                f"{values.get('max', 0):.2f}"
-                            ])
-                    else:
-                        # For non-normalized metrics (counts), use whole numbers
-                        writer.writerow([
-                            metric,
-                            str(int(values.get('mean', 0))),
-                            str(int(values.get('std', 0))),
-                            str(int(values.get('min', 0))),
-                            str(int(values.get('max', 0)))
-                    ])
+                            round(metric_data['mean'], 2),
+                            round(metric_data['std'], 2),
+                            round(metric_data['min'], 2),
+                            round(metric_data['max'], 2)
+                        ])
+            writer.writerow([])
             
-            # Second section: Order status summary
-            writer.writerow([])  # Empty row for separation
+            # Write Order Status Summary section
             writer.writerow(['Order Status Summary'])
             writer.writerow(['Status', 'Count'])
             if 'order_status' in data:
                 for status, count in data['order_status'].items():
                     writer.writerow([status, count])
+            writer.writerow([])
             
-            # Third section: Order lifecycle data
-            if 'order_lifecycle' in data:
-                writer.writerow([])  # Empty row for separation
-                writer.writerow(['Order Lifecycle Data'])
+            # Write Order Lifecycle Data section
+            writer.writerow(['Order Lifecycle Data'])
+            
+            if 'order_lifecycle' in data and data['order_lifecycle']:
+                # IMPORTANT: Order ID format must always be ORD_<random 8-digit number>
+                # Example: ORD_12345678 (NO LETTERS allowed in the number portion)
+                fields = [
+                    'Event Index', 'Order ID', 'Event Date', 'Current Status',
+                    'Current Location', 'Production Time', 'Transit Time', 'Delay Time',
+                    'Expected Delivery', 'Actual Delivery', 'Transportation Mode',
+                    'Source Region', 'Destination Region', 'Is Delayed', 'Is On Time'
+                ]
                 
-                # Get all fields from the first event of the first order (if any exist)
-                if data['order_lifecycle']:
-                    first_order_id = next(iter(data['order_lifecycle']))
-                    first_order_events = data['order_lifecycle'][first_order_id]
-                    if first_order_events:  # Check if there are any events
-                        first_event = first_order_events[0]
-                        fields = list(first_event.keys())
-                        
-                        # Write header with Event Index first, then Order ID, then remaining fields
-                        writer.writerow(['Event Index', 'Order ID'] + [f for f in fields if f not in ['Event Index', 'Order ID']])
-                        
-                        # Write data for each order and each event
-                        for order_id, events in data['order_lifecycle'].items():
-                            for event_idx, event in enumerate(events):
-                                # Format order_id to only contain numbers after ORD_
-                                formatted_order_id = f"ORD_{str(event_idx).zfill(8)}"
-                                
-                                # Create row starting with Event Index and Order ID
-                                row = [event_idx, formatted_order_id]
-                                # Add remaining fields
-                                row.extend(str('NA' if event.get(field) is None else event.get(field, 'NA')) 
-                                         for field in fields if field not in ['Event Index', 'Order ID'])
-                                writer.writerow(row)  # Write each row inside the loop
+                # Write header
+                writer.writerow(fields)
+                
+                # Flatten and sort all events by simulation day and created_at
+                all_events = []
+                for order_id, events in data['order_lifecycle'].items():
+                    # Generate a new 8-digit random number for the order ID
+                    new_order_id = f"ORD_{random.randint(10000000, 99999999)}"
+                    for event in events:
+                        event_copy = event.copy()
+                        event_copy['Order ID'] = new_order_id
+                        all_events.append(event_copy)
+                
+                # Sort events by simulation day and created_at
+                all_events.sort(key=lambda x: (x['simulation_day'], x['created_at']))
+                
+                # Write data rows with global event counter
+                for event_index, event in enumerate(all_events):
+                    row = [
+                        event_index,
+                        event['Order ID'],
+                        event.get('created_at', 'NA'),
+                        event.get('current_status', 'NA'),
+                        event.get('current_location', 'NA'),
+                        event.get('production_time', 0),
+                        event.get('transit_time', 0),
+                        event.get('delay_time', 0),
+                        event.get('expected_delivery', 'NA'),
+                        event.get('actual_delivery', 'NA'),
+                        event.get('transportation_mode', 'NA'),
+                        event.get('source_region', 'NA'),
+                        event.get('destination_region', 'NA'),
+                        event.get('is_delayed', False),
+                        event.get('is_on_time', None)
+                    ]
+                    writer.writerow(row)
 
     def _save_results_to_csv(self, results: Dict[str, Any], results_df: pd.DataFrame, scenario_name: str):
         """Save simulation results to CSV files."""

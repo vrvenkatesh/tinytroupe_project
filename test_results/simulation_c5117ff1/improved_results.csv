@@ -1,0 +1,51 @@
+Core Metrics
+Metric,Mean,Std Dev,Min,Max
+resilience_score,0.6,0.0,0.6,0.6
+recovery_time,0.7,0.0,0.7,0.7
+service_level,0.8,0.0,0.8,0.8
+total_cost,0.7,0.0,0.7,0.7
+inventory_cost,0.6,0.0,0.6,0.6
+transportation_cost,0.7,0.0,0.7,0.7
+risk_exposure,0.5,0.0,0.5,0.5
+supplier_risk,0.4,0.0,0.4,0.4
+transportation_risk,0.5,0.0,0.5,0.5
+lead_time,0.7,0.0,0.7,0.7
+flexibility_score,0.6,0.0,0.6,0.6
+quality_score,0.8,0.0,0.8,0.8
+total_interactions,0.0,0.0,0.0,0.0
+unique_interacting_agents,0.0,0.0,0.0,0.0
+total_orders,20.0,0.0,20.0,20.0
+
+Order Status Summary
+Status,Count
+new,20
+production,0
+ready,0
+in_transit,0
+delivered,0
+cancelled,0
+delayed,0
+failed,0
+
+Order Lifecycle Data
+Event Index,Order ID,Event Date,Current Status,Current Location,Production Time,Transit Time,Delay Time,Expected Delivery,Actual Delivery,Transportation Mode,Source Region,Destination Region,Simulation Day,Is Delayed,Is On Time
+0,ORD_8c6580d8,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-18 17:53:17,,,North America,Europe,0,False,
+1,ORD_58cf517f,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-18 17:53:17,,,Europe,North America,0,False,
+2,ORD_35137418,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-19 17:53:17,,,North America,Europe,1,False,
+3,ORD_be2eb7aa,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-18 17:53:17,,,Europe,North America,1,False,
+4,ORD_de69f8f7,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-18 17:53:17,,,North America,Europe,2,False,
+5,ORD_4494f5a8,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-19 17:53:17,,,Europe,North America,2,False,
+6,ORD_8e78c5b2,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-19 17:53:17,,,North America,Europe,3,False,
+7,ORD_a47d88ff,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-19 17:53:17,,,Europe,North America,3,False,
+8,ORD_8fe71a7a,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-19 17:53:17,,,North America,Europe,4,False,
+9,ORD_d5756f1c,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-18 17:53:17,,,Europe,North America,4,False,
+10,ORD_7777d4e9,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-19 17:53:17,,,North America,Europe,5,False,
+11,ORD_af9c1947,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-18 17:53:17,,,Europe,North America,5,False,
+12,ORD_675f7c10,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-18 17:53:17,,,North America,Europe,6,False,
+13,ORD_728a1ce6,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-18 17:53:17,,,Europe,North America,6,False,
+14,ORD_2540dc3d,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-19 17:53:17,,,North America,Europe,7,False,
+15,ORD_43b2b944,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-19 17:53:17,,,Europe,North America,7,False,
+16,ORD_6686f604,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-19 17:53:17,,,North America,Europe,8,False,
+17,ORD_623eeae8,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-19 17:53:17,,,Europe,North America,8,False,
+18,ORD_ba65dd56,2025-04-17 17:53:17,NEW,North America,0,0,0,2025-04-19 17:53:17,,,North America,Europe,9,False,
+19,ORD_8835cf2a,2025-04-17 17:53:17,NEW,Europe,0,0,0,2025-04-19 17:53:17,,,Europe,North America,9,False,

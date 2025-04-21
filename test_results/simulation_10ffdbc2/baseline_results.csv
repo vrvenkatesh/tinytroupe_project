@@ -1,0 +1,30 @@
+Core Metrics
+Metric,Mean,Std Dev,Min,Max
+resilience_score,0.72,0.12,0.6,0.84
+recovery_time,0.49,0.21,0.28,0.7
+service_level,0.86,0.06,0.8,0.92
+total_cost,0.71,0.01,0.7,0.72
+inventory_cost,0.43,0.17,0.25,0.6
+transportation_cost,0.61,0.09,0.51,0.7
+risk_exposure,0.35,0.15,0.2,0.5
+supplier_risk,0.28,0.12,0.16,0.4
+transportation_risk,0.35,0.15,0.2,0.5
+lead_time,0.49,0.21,0.28,0.7
+flexibility_score,0.72,0.12,0.6,0.84
+quality_score,0.86,0.06,0.8,0.92
+total_interactions,25.0,25.0,0.0,50.0
+unique_interacting_agents,25.0,25.0,0.0,50.0
+total_orders,20.0,0.0,20.0,20.0
+
+Order Status Summary
+Status,Count
+new,2
+production,2
+ready,2
+in_transit,2
+delivered,12
+cancelled,0
+delayed,0
+failed,0
+
+Order Lifecycle Data

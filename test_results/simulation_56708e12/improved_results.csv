@@ -1,0 +1,27 @@
+Core Metrics
+Metric,Value
+service_level,"{'mean': 0.8, 'std': 0.0, 'min': 0.8, 'max': 0.8, 'daily': [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]}"
+risk_exposure,"{'mean': 0.5, 'std': 0.0, 'min': 0.5, 'max': 0.5, 'daily': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]}"
+flexibility_score,"{'mean': 0.5999999999999999, 'std': 0.0, 'min': 0.5999999999999999, 'max': 0.5999999999999999, 'daily': [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]}"
+quality_score,"{'mean': 0.8, 'std': 0.0, 'min': 0.8, 'max': 0.8, 'daily': [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]}"
+resilience_score,"{'mean': 0.5999999999999999, 'std': 0.0, 'min': 0.5999999999999999, 'max': 0.5999999999999999, 'daily': [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]}"
+lead_time,"{'mean': 0.7, 'std': 0.0, 'min': 0.7, 'max': 0.7, 'daily': [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]}"
+recovery_time,"{'mean': 0.7, 'std': 0.0, 'min': 0.7, 'max': 0.7, 'daily': [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]}"
+supplier_risk,"{'mean': 0.4, 'std': 0.0, 'min': 0.4, 'max': 0.4, 'daily': [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]}"
+transportation_risk,"{'mean': 0.5, 'std': 0.0, 'min': 0.5, 'max': 0.5, 'daily': [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]}"
+total_cost,"{'mean': 0.7, 'std': 0.0, 'min': 0.7, 'max': 0.7, 'daily': [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]}"
+inventory_cost,"{'mean': 0.5999999999999999, 'std': 0.0, 'min': 0.5999999999999999, 'max': 0.5999999999999999, 'daily': [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]}"
+transportation_cost,"{'mean': 0.7, 'std': 0.0, 'min': 0.7, 'max': 0.7, 'daily': [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]}"
+
+Order Status Summary
+Status,Count
+new,20
+production,0
+ready,0
+in_transit,0
+delivered,0
+cancelled,0
+delayed,0
+failed,0
+
+Order Lifecycle Data
