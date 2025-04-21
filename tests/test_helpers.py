@@ -112,9 +112,21 @@ class TestArtifactGenerator:
                 expected_delivery_str = order_data['expected_delivery_time'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(order_data['expected_delivery_time'], datetime) else 'NA'
                 actual_delivery_str = order_data['actual_delivery_time'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(order_data['actual_delivery_time'], datetime) else 'NA'
                 
-                # Calculate derived fields
-                is_delayed = bool(order_data['delay_time'] > 0)
-                is_on_time = actual_delivery_str != 'NA' and not is_delayed
+                # Calculate derived fields - Updated logic for mutual exclusivity
+                is_delayed = False
+                is_on_time = False
+                
+                if actual_delivery_str != 'NA':
+                    # Order has been delivered - check if it was delayed
+                    is_delayed = bool(order_data['delay_time'] > 0)
+                    is_on_time = not is_delayed
+                elif expected_delivery_str != 'NA':
+                    # Order not delivered yet - check if it's past expected delivery
+                    expected_time = order_data['expected_delivery_time']
+                    current_time = order_data['creation_time']
+                    if isinstance(expected_time, datetime) and isinstance(current_time, datetime):
+                        is_delayed = current_time > expected_time
+                        is_on_time = not is_delayed
                 
                 # Write row with proper type handling
                 row = [
