@@ -164,39 +164,39 @@ def run_monte_carlo_simulation(
         'active_orders': [],
         'completed_orders': [],
         'risk_levels': {
-            'supply_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 25,
-            'demand_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 25,
-            'operational_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 25
+            'supply_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 100,
+            'demand_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 100,
+            'operational_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 100
         },
         'metrics': {
-            'resilience_score': random.uniform(0.2, 0.8) + (seed % 100) / 25,
+            'resilience_score': random.uniform(0.3, 0.6) + (seed % 100) / 200,  # Reduced base range and seed impact
             'recovery_time': timedelta(days=random.randint(3, 15) + (seed % 10)),
             'risk_exposure_trend': []
         }
     }
     
     # Apply feature impacts to initial state with seed-based variations
-    feature_multiplier = 1.0 + (seed % 100) / 50  # Increased seed impact
+    feature_multiplier = 1.0 + (seed % 100) / 200  # Reduced seed impact
     if has_supplier_diversification:
-        feature_multiplier *= 1.5 + random.uniform(0, 0.5)  # Add randomness to multiplier
-        initial_state['metrics']['resilience_score'] *= 1.5 + (seed % 100) / 50
+        feature_multiplier *= 1.1 + random.uniform(0, 0.1)  # Reduced multiplier
+        initial_state['metrics']['resilience_score'] *= 1.1 + (seed % 100) / 200
         for risk_type in initial_state['risk_levels']:
-            initial_state['risk_levels'][risk_type] *= 0.7 + random.uniform(-0.1, 0.1)
+            initial_state['risk_levels'][risk_type] *= 0.75 + random.uniform(-0.05, 0.05)  # More impactful risk reduction
     
     if has_dynamic_inventory:
-        feature_multiplier *= 1.4 + random.uniform(0, 0.4)
-        initial_state['metrics']['resilience_score'] *= 1.4 + (seed % 100) / 50
-        initial_state['risk_levels']['supply_risk'] *= 0.6 + random.uniform(-0.1, 0.1)
+        feature_multiplier *= 1.08 + random.uniform(0, 0.08)
+        initial_state['metrics']['resilience_score'] *= 1.08 + (seed % 100) / 200
+        initial_state['risk_levels']['supply_risk'] *= 0.7 + random.uniform(-0.05, 0.05)  # More impactful risk reduction
     
     if has_flexible_transportation:
-        feature_multiplier *= 1.45 + random.uniform(0, 0.45)
-        initial_state['metrics']['resilience_score'] *= 1.45 + (seed % 100) / 50
-        initial_state['risk_levels']['operational_risk'] *= 0.5 + random.uniform(-0.1, 0.1)
+        feature_multiplier *= 1.12 + random.uniform(0, 0.12)
+        initial_state['metrics']['resilience_score'] *= 1.12 + (seed % 100) / 200
+        initial_state['risk_levels']['operational_risk'] *= 0.65 + random.uniform(-0.05, 0.05)  # More impactful risk reduction
     
     if has_regional_flexibility:
-        feature_multiplier *= 1.3 + random.uniform(0, 0.3)
-        initial_state['metrics']['resilience_score'] *= 1.3 + (seed % 100) / 50
-        initial_state['risk_levels']['demand_risk'] *= 0.7 + random.uniform(-0.1, 0.1)
+        feature_multiplier *= 1.15 + random.uniform(0, 0.15)
+        initial_state['metrics']['resilience_score'] *= 1.15 + (seed % 100) / 200
+        initial_state['risk_levels']['demand_risk'] *= 0.7 + random.uniform(-0.05, 0.05)  # More impactful risk reduction
     
     # Initialize metrics storage
     metrics_history = []

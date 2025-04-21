@@ -1,0 +1,4 @@
+Event Index,Order ID,Event Date,Current Status,Current Location,Production Time,Transit Time,Delay Time,Expected Delivery,Actual Delivery,Transportation Mode,Source Region,Destination Region,Simulation Day,Is Delayed,Is On Time
+0,ORD_000,2025-04-21 15:47:31,NEW,North America,2.5,1.5,0.0,2025-04-24 15:47:31,NA,Ground,North America,Europe,0,False,False
+1,ORD_001,2025-04-21 15:47:31,DELIVERED,North America,2.5,1.5,0.5,2025-04-24 15:47:31,2025-04-25 15:47:31,Ground,North America,Europe,1,True,False
+2,ORD_002,2025-04-21 15:47:31,DELIVERED,North America,2.5,1.5,0.5,2025-04-24 15:47:31,2025-04-25 15:47:31,Ground,North America,Europe,2,True,False

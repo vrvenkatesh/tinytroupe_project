@@ -25,6 +25,8 @@ from supply_chain import (
     Order,
 )
 
+from tests.test_helpers import TestArtifactGenerator
+
 class TestSupplyChainComponents(unittest.TestCase):
     """Test cases for supply chain components."""
 
@@ -49,33 +51,8 @@ class TestSupplyChainComponents(unittest.TestCase):
         # Create test world with unique name
         self.world = create_simulation_world(self.config)
         
-        # Ensure world state is properly initialized
-        if 'risk_exposure' not in self.world.state:
-            self.world.state.update({
-                'risk_exposure': 0.5,
-                'cost_pressure': 0.5,
-                'demand_volatility': 0.5,
-                'supply_risk': 0.5,
-                'reliability_requirement': 0.5,
-                'flexibility_requirement': 0.5,
-                'active_orders': [],
-                'completed_orders': [],
-                'regional_metrics': {
-                    region.value: {
-                        'risk': 0.5,
-                        'cost': 0.5,
-                        'demand': 0.5,
-                        'supply_risk': 0.5,
-                        'infrastructure': 0.7,
-                        'congestion': 0.3,
-                        'efficiency': 0.8,
-                        'flexibility': 0.7,
-                        'quality': 0.8
-                    } for region in Region
-                }
-            })
-        
-        self.world.current_time = 0
+        # Initialize test artifact generator
+        self.artifact_generator = TestArtifactGenerator(self.simulation_id)
 
     def test_world_creation(self):
         """Test creation of simulation world."""
@@ -318,6 +295,9 @@ class TestSupplyChainComponents(unittest.TestCase):
         print(f"Total orders processed: {total_orders}")
         print(f"Completed orders: {len(self.world.state['completed_orders'])}")
         print(f"Final metrics: {final_metrics}")
+        
+        # Generate test artifacts
+        self.artifact_generator.generate_artifacts(self.world, final_metrics, "order_based_simulation")
 
     def test_agent_interactions(self):
         """Test basic agent interactions."""
@@ -356,6 +336,9 @@ class TestSupplyChainComponents(unittest.TestCase):
         response = supplier.act()
         self.assertIsInstance(response, str)
         self.assertTrue(len(response) > 0)
+        
+        # Generate test artifacts
+        self.artifact_generator.save_agent_interactions(self.world)
 
     def test_basic_order_flow(self):
         """Test the basic flow of an order through all states."""
@@ -491,6 +474,9 @@ class TestSupplyChainComponents(unittest.TestCase):
         # Verify order was delivered
         self.assertEqual(updated_order.status, OrderStatus.DELIVERED)
         self.assertIsNotNone(updated_order.actual_delivery_time)
+        
+        # Generate test artifacts
+        self.artifact_generator.generate_artifacts(self.world, metrics, "basic_order_flow")
 
 if __name__ == '__main__':
     unittest.main() 

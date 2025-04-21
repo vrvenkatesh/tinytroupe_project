@@ -1,0 +1,3 @@
+Interaction ID,Agent ID,Agent Type,Interaction Type,Timestamp,Target Agent,Order ID,Status,Success,Message,Simulation Day
+INT_00000000,AGENT_000,type,ORDER_PROCESSING,2025-04-21 15:47:31,AGENT_001,ORD_000,NEW,True,Processing order 0,0
+INT_00000001,AGENT_001,type,ORDER_PROCESSING,2025-04-21 15:47:31,AGENT_000,ORD_001,DELIVERED,True,Processing order 1,1
