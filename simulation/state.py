@@ -42,5 +42,5 @@ class SimulationState:
             (self.task_complexity * self.error_rate))
         
         # Calculate average delay based on efficiency and coordination
-        self.average_delay = max(1.0,
-            5.0 * (2.0 - self.workflow_efficiency - self.team_coordination)) 
+        self.average_delay = max(0.0,
+            3.0 * (2.0 - self.workflow_efficiency - self.team_coordination)) 

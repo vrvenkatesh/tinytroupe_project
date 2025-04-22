@@ -50,9 +50,23 @@ def run_monte_carlo_simulation(
     results = []
     random.seed(config['simulation']['seed'])
     
+    # Initialize tracking for daily metrics across all iterations
+    daily_metrics = {
+        'resilience_score': [],
+        'completion_rate': [],
+        'on_time_delivery_rate': [],
+        'risk_level': [],
+        'service_level': []
+    }
+    
+    # Track order lifecycle and agent interactions across iterations
+    daily_order_tracking = []
+    daily_interaction_tracking = []
+    
     for iteration in range(config['simulation']['monte_carlo_iterations']):
         # Create unique simulation ID
         simulation_id = f"{world.name}_iter_{iteration}"
+        iteration_results = []
         
         # Reset world state for this iteration
         world.state = {
@@ -81,107 +95,86 @@ def run_monte_carlo_simulation(
         }
         world.current_datetime = datetime.now()  # Reset datetime for this iteration
         
-        # Create agents with updated configurations
-        coo_config = config['coo'].copy()
-        regional_config = config['regional_manager'].copy()
-        supplier_config = config['supplier'].copy()
-        logistics_config = config['logistics'].copy()
-        production_config = config['production_facility'].copy()
+        # Reset agent interactions for this iteration
+        for agent in world.agents:
+            agent.interactions = []
         
         # Configure supply chain capabilities and adjust initial metrics
-        base_metrics = coo_config.get('initial_metrics', {})
-        improvement_factor = 1.0
+        base_metrics = config['coo'].get('initial_metrics', {})
+        feature_multiplier = 1.0
         
         if has_supplier_diversification:
-            supplier_config['diversification_enabled'] = True
-            improvement_factor += 0.1
-            base_metrics['supplier_risk'] = max(0, base_metrics.get('supplier_risk', 0.5) * 0.8)
+            feature_multiplier *= 1.2
+            world.state['supply_risk'] *= 0.8
             
         if has_dynamic_inventory:
-            inventory_config = config['inventory_management'].copy()
-            inventory_config['dynamic_enabled'] = True
-            improvement_factor += 0.1
-            base_metrics['inventory_cost'] = max(0, base_metrics.get('inventory_cost', 0.5) * 0.85)
+            feature_multiplier *= 1.15
+            world.state['cost_pressure'] *= 0.85
             
         if has_flexible_transportation:
-            logistics_config['flexible_routing_enabled'] = True
-            improvement_factor += 0.1
-            base_metrics['transportation_risk'] = max(0, base_metrics.get('transportation_risk', 0.5) * 0.8)
+            feature_multiplier *= 1.1
+            world.state['reliability_requirement'] *= 0.9
             
         if has_regional_flexibility:
-            production_config['regional_flexibility_enabled'] = True
-            improvement_factor += 0.1
-            base_metrics['flexibility_score'] = min(1.0, base_metrics.get('flexibility_score', 0.5) * 1.2)
+            feature_multiplier *= 1.25
+            world.state['flexibility_requirement'] *= 0.75
         
-        # Update base metrics with improvements
-        for metric in base_metrics:
-            if metric not in ['supplier_risk', 'inventory_cost', 'transportation_risk', 'flexibility_score']:
-                base_metrics[metric] = min(1.0, base_metrics[metric] * improvement_factor)
-        
-        # Create COO agent with unique name
-        coo = create_coo_agent(
-            f"COO_{simulation_id}_{iteration}",
-            {**coo_config, 'initial_metrics': base_metrics.copy()},
-            simulation_id
-        )
-        
-        # Create regional managers with unique names
-        regional_managers = {
-            region: create_regional_manager_agent(
-                f"Manager_{region.name}_{simulation_id}_{iteration}",
-                {**regional_config, 'initial_metrics': base_metrics.copy()},
-                simulation_id
-            )
-            for region in world.regions
-        }
-        
-        # Create suppliers with unique names
-        suppliers = {
-            region: [
-                create_supplier_agent(
-                    f"Supplier_{region.name}_{i}_{simulation_id}_{iteration}",
-                    {**supplier_config, 'initial_metrics': base_metrics.copy()},
-                    simulation_id
-                )
-                for i in range(config['simulation']['suppliers_per_region'])
-            ]
-            for region in world.regions
-        }
-        
-        # Add all agents to the world
-        world.add_agent(coo)
-        for manager in regional_managers.values():
-            world.add_agent(manager)
-        for region_suppliers in suppliers.values():
-            for supplier in region_suppliers:
-                world.add_agent(supplier)
-        
-        # Run simulation for multiple time steps
-        iteration_results = []
-        daily_metrics = {
-            'active_orders': [],
-            'completed_orders': [],
-            'delayed_orders': [],
-            'service_level': [],
-            'resilience_score': [],
-            'lead_time': [],
-            'total_orders': []  # Add tracking for total orders
-        }
-        
-        # Track daily order states
-        daily_order_tracking = []
-        
-        for _ in range(config['simulation']['time_steps']):
+        # Run simulation steps
+        for step in range(config['simulation']['time_steps']):
+            world.current_time = step
             step_results = simulate_supply_chain_operation(
                 world=world,
                 config=config
             )
             
-            # Store a snapshot of all orders for this day
+            # Store a snapshot of all orders and interactions for this day
             active_orders = world.state.get('active_orders', [])
             completed_orders = world.state.get('completed_orders', [])
             all_orders = active_orders + completed_orders
-            daily_order_tracking.append(all_orders)
+            
+            # Create order lifecycle snapshot
+            order_snapshot = []
+            for order in all_orders:
+                order_data = {
+                    'order_id': order.id,
+                    'status': order.status.value,
+                    'current_location': order.current_location.value,
+                    'source_region': order.source_region.value,
+                    'destination_region': order.destination_region.value,
+                    'creation_time': order.creation_time,
+                    'expected_delivery_time': order.expected_delivery_time,
+                    'actual_delivery_time': order.actual_delivery_time,
+                    'production_time': order.production_time,
+                    'transit_time': order.transit_time,
+                    'delay_time': order.delay_time,
+                    'transportation_mode': order.transportation_mode.value if order.transportation_mode else None,
+                    'current_handler': order.current_handler,
+                    'simulation_day': step
+                }
+                order_snapshot.append(order_data)
+            daily_order_tracking.append(order_snapshot)
+            
+            # Collect all agent interactions
+            interaction_snapshot = []
+            for agent in world.agents:
+                for interaction in getattr(agent, 'interactions', []):
+                    if isinstance(interaction, dict):  # Already a dict
+                        interaction_data = interaction.copy()
+                    else:  # Custom interaction object
+                        interaction_data = {
+                            'agent_id': agent.id,
+                            'agent_type': agent.role,
+                            'interaction_type': getattr(interaction, 'type', 'unknown'),
+                            'timestamp': getattr(interaction, 'timestamp', datetime.now()),
+                            'target_agent': getattr(interaction, 'target_agent', 'unknown'),
+                            'order_id': getattr(interaction, 'order_id', 'unknown'),
+                            'status': getattr(interaction, 'status', 'unknown'),
+                            'success': getattr(interaction, 'success', False),
+                            'message': getattr(interaction, 'message', ''),
+                            'simulation_day': step
+                        }
+                    interaction_snapshot.append(interaction_data)
+            daily_interaction_tracking.append(interaction_snapshot)
             
             # Calculate total orders for this step
             step_results['total_orders'] = len(all_orders)
@@ -199,71 +192,54 @@ def run_monte_carlo_simulation(
                     daily_metrics[metric].append(0)  # Default to 0 if metric not present
         
         # Aggregate results for this iteration
-        iteration_aggregated = {}
-        for metric in iteration_results[0].keys():
-            if metric == 'order_status':
-                continue  # Skip order_status as it's handled separately
-            
-            values = [r[metric] for r in iteration_results]
-            if metric in ['delayed_orders', 'total_orders']:
-                # For these metrics, take the maximum value across time steps
-                iteration_aggregated[metric] = {
-                    'mean': float(max(values)),
-                    'std': float(np.std(values)),
-                    'min': float(min(values)),
-                    'max': float(max(values)),
-                    'daily': values
-                }
-            else:
-                # For other metrics, take the mean across time steps
-                iteration_aggregated[metric] = {
-                    'mean': float(np.mean(values)),
-                    'std': float(np.std(values)),
-                    'min': float(np.min(values)),
-                    'max': float(max(values)),
-                    'daily': values
-                }
-        
-        # Add order tracking to iteration results
-        iteration_aggregated['daily_order_tracking'] = daily_order_tracking
+        iteration_aggregated = {
+            'mean_resilience_score': np.mean([r.get('resilience_score', 0) for r in iteration_results]),
+            'std_resilience_score': np.std([r.get('resilience_score', 0) for r in iteration_results]),
+            'min_resilience_score': min([r.get('resilience_score', 0) for r in iteration_results]),
+            'max_resilience_score': max([r.get('resilience_score', 0) for r in iteration_results]),
+            'mean_completion_rate': np.mean([r.get('completion_rate', 0) for r in iteration_results]),
+            'std_completion_rate': np.std([r.get('completion_rate', 0) for r in iteration_results]),
+            'min_completion_rate': min([r.get('completion_rate', 0) for r in iteration_results]),
+            'max_completion_rate': max([r.get('completion_rate', 0) for r in iteration_results]),
+            'mean_on_time_delivery_rate': np.mean([r.get('on_time_delivery_rate', 0) for r in iteration_results]),
+            'std_on_time_delivery_rate': np.std([r.get('on_time_delivery_rate', 0) for r in iteration_results]),
+            'min_on_time_delivery_rate': min([r.get('on_time_delivery_rate', 0) for r in iteration_results]),
+            'max_on_time_delivery_rate': max([r.get('max_on_time_delivery_rate', 0) for r in iteration_results]),
+            'mean_risk_level': np.mean([r.get('risk_level', 0) for r in iteration_results]),
+            'std_risk_level': np.std([r.get('risk_level', 0) for r in iteration_results]),
+            'min_risk_level': min([r.get('min_risk_level', 0) for r in iteration_results]),
+            'max_risk_level': max([r.get('max_risk_level', 0) for r in iteration_results]),
+            'feature_multiplier': feature_multiplier
+        }
         
         results.append(iteration_aggregated)
-        
-        # Clean up agents after each iteration
-        for agent in world.agents[:]:
-            world.remove_agent(agent)
     
-    # Aggregate results across all iterations
-    aggregated_results = {}
-    for metric in results[0].keys():
-        if metric == 'daily_order_tracking':
-            # For order tracking, just take the first iteration's values
-            aggregated_results[metric] = results[0][metric]
-            continue
-            
-        if metric == 'order_status':
-            # For order status, just take the first iteration's values
-            aggregated_results[metric] = results[0][metric]
-            continue
-        
-        values = [r[metric]['mean'] for r in results]  # Use mean from each iteration
-        daily_values = [r[metric]['daily'] for r in results]  # Get daily values from all iterations
-        
-        # Calculate mean daily values across iterations
-        mean_daily = []
-        for day in range(len(daily_values[0])):
-            day_values = [iteration[day] for iteration in daily_values]
-            mean_daily.append(float(np.mean(day_values)))
-        
-        aggregated_results[metric] = {
-            'mean': float(np.mean(values)),
-            'std': float(np.std(values)),
-            'min': float(np.min(values)),
-            'max': float(np.max(values)),
-            'daily': mean_daily
-        }
+    # Calculate final aggregated metrics across all iterations
+    final_metrics = {
+        'mean_resilience_score': np.mean([r['mean_resilience_score'] for r in results]),
+        'std_resilience_score': np.mean([r['std_resilience_score'] for r in results]),
+        'min_resilience_score': min([r['min_resilience_score'] for r in results]),
+        'max_resilience_score': max([r['max_resilience_score'] for r in results]),
+        'mean_completion_rate': np.mean([r['mean_completion_rate'] for r in results]),
+        'std_completion_rate': np.mean([r['std_completion_rate'] for r in results]),
+        'min_completion_rate': min([r['min_completion_rate'] for r in results]),
+        'max_completion_rate': max([r['max_completion_rate'] for r in results]),
+        'mean_on_time_delivery_rate': np.mean([r['mean_on_time_delivery_rate'] for r in results]),
+        'std_on_time_delivery_rate': np.mean([r['std_on_time_delivery_rate'] for r in results]),
+        'min_on_time_delivery_rate': min([r['min_on_time_delivery_rate'] for r in results]),
+        'max_on_time_delivery_rate': max([r['max_on_time_delivery_rate'] for r in results]),
+        'mean_risk_level': np.mean([r['mean_risk_level'] for r in results]),
+        'std_risk_level': np.mean([r['std_risk_level'] for r in results]),
+        'min_risk_level': min([r['min_risk_level'] for r in results]),
+        'max_risk_level': max([r['max_risk_level'] for r in results]),
+        'feature_multiplier': np.mean([r['feature_multiplier'] for r in results])
+    }
     
-    return aggregated_results
+    # Store the final order lifecycle and agent interactions in the world state
+    world.state['order_lifecycle'] = daily_order_tracking
+    world.state['agent_interactions'] = daily_interaction_tracking
+    
+    return final_metrics
 
 def visualize_results(
     baseline_results: Dict[str, Any],

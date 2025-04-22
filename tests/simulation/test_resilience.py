@@ -32,11 +32,27 @@ def simulation_setup():
             'local_expertise': 0.8,
             'adaptability': 0.7,
             'communication_skills': 0.6,
-            'cost_sensitivity': 0.6
+            'cost_sensitivity': 0.6,
+            'order_batch_size': 10,
+            'order_processing_interval': 24,
+            'regional_demand_weights': {
+                'North America': 0.3,
+                'Europe': 0.3,
+                'East Asia': 0.2,
+                'Southeast Asia': 0.1,
+                'South Asia': 0.1
+            },
+            'regional_production_costs': {
+                'North America': 100,
+                'Europe': 120,
+                'East Asia': 80,
+                'Southeast Asia': 90,
+                'South Asia': 85
+            }
         },
         'supplier': {
             'reliability': 0.8,
-            'quality_score': 0.9,
+            'quality': 0.9,
             'cost_efficiency': 0.7,
             'diversification_enabled': False
         },
@@ -51,7 +67,14 @@ def simulation_setup():
             'quality_control': 0.9,
             'flexibility': 0.7,
             'regional_flexibility_enabled': False,
-            'base_production_time': 3
+            'base_production_time': 3,
+            'capacity': {
+                'North America': 200,
+                'Europe': 150,
+                'East Asia': 250,
+                'Southeast Asia': 200,
+                'South Asia': 150
+            }
         },
         'inventory_management': {
             'base_stock_level': 100,

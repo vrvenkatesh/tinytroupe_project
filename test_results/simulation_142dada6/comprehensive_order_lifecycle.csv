@@ -1,0 +1,11 @@
+Event Index,Order ID,Event Date,Current Status,Current Location,Production Time,Transit Time,Delay Time,Expected Delivery,Actual Delivery,Transportation Mode,Source Region,Destination Region,Simulation Day,Is Delayed,Is On Time,Handler
+0,TEST_ORDER_North America_0,2025-04-22 11:53:27,NEW,North America,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,North America,Europe,0,False,True,
+1,TEST_ORDER_North America_1,2025-04-22 11:53:27,NEW,North America,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,North America,Europe,1,False,True,
+2,TEST_ORDER_Europe_0,2025-04-22 11:53:27,NEW,Europe,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,Europe,Southeast Asia,2,False,True,
+3,TEST_ORDER_Europe_1,2025-04-22 11:53:27,NEW,Europe,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,Europe,Southeast Asia,3,False,True,
+4,TEST_ORDER_East Asia_0,2025-04-22 11:53:27,NEW,East Asia,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,East Asia,Southeast Asia,4,False,True,
+5,TEST_ORDER_East Asia_1,2025-04-22 11:53:27,NEW,East Asia,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,East Asia,South Asia,5,False,True,
+6,TEST_ORDER_Southeast Asia_0,2025-04-22 11:53:27,NEW,Southeast Asia,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,Southeast Asia,North America,6,False,True,
+7,TEST_ORDER_Southeast Asia_1,2025-04-22 11:53:27,NEW,Southeast Asia,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,Southeast Asia,North America,7,False,True,
+8,TEST_ORDER_South Asia_0,2025-04-22 11:53:27,NEW,South Asia,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,South Asia,North America,8,False,True,
+9,TEST_ORDER_South Asia_1,2025-04-22 11:53:27,NEW,South Asia,2.0,1.5,0.0,2025-04-29 11:53:27,NA,None,South Asia,Europe,9,False,True,

@@ -32,4 +32,4 @@ dev = [
 
 [tool.setuptools]
 package-dir = {"" = "."}
-packages = ["tinytroupe"] 
+packages = ["tinytroupe", "simulation", "models", "agents", "utils"] 

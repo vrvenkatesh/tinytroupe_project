@@ -31,11 +31,27 @@ DEFAULT_CONFIG = {
         'local_expertise': 0.8,
         'adaptability': 0.7,
         'communication_skills': 0.6,
-        'cost_sensitivity': 0.6
+        'cost_sensitivity': 0.6,
+        'order_batch_size': 20,  # Added: Number of orders to process in each batch
+        'order_processing_interval': 24,  # Added: Hours between order processing
+        'regional_demand_weights': {  # Added: Weights for demand distribution
+            'North America': 0.3,
+            'Europe': 0.3,
+            'East Asia': 0.2,
+            'Southeast Asia': 0.1,
+            'South Asia': 0.1
+        },
+        'regional_production_costs': {  # Added: Production costs per region
+            'North America': 100,
+            'Europe': 120,
+            'East Asia': 80,
+            'Southeast Asia': 90,
+            'South Asia': 85
+        }
     },
     'supplier': {
         'reliability': 0.8,
-        'quality_score': 0.9,
+        'quality': 0.9,
         'cost_efficiency': 0.7,
         'diversification_enabled': False,
     },
@@ -51,6 +67,13 @@ DEFAULT_CONFIG = {
         'flexibility': 0.7,
         'regional_flexibility_enabled': False,
         'base_production_time': 3,  # Base time in days for production
+        'capacity': {  # Production capacity settings per region
+            'North America': 200,  # Higher capacity for larger market
+            'Europe': 150,         # Medium capacity
+            'East Asia': 250,      # Highest capacity for manufacturing hub
+            'Southeast Asia': 200,  # High capacity for growing market
+            'South Asia': 150      # Medium capacity for emerging market
+        }
     },
     'inventory_management': {
         'base_stock_level': 100,

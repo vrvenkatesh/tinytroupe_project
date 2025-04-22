@@ -12,7 +12,7 @@ from tinytroupe.environment.tiny_world import TinyWorld as World
 from models.enums import Region, OrderStatus, TransportationMode, RiskLevel
 from models.enums import Region, OrderStatus, TransportationMode
 from models.order import Order
-from agents import COOAgent, RegionalManagerAgent, SupplierAgent, ExternalEventAgent
+from agents import COOAgent, RegionalManagerAgent, SupplierAgent, ExternalEventAgent, ProductionFacilityAgent
 from models.disruption import Disruption
 from models.resilience_strategy import ResilienceStrategy
 
@@ -23,12 +23,13 @@ class SimulationWorld(World):
         """Initialize the simulation world."""
         super().__init__(name=name, **kwargs)
         self.simulation_id = simulation_id
+        self.agents = []  # Initialize agents list
         
         # Calculate initial resilience score based on average risk levels
         initial_risk_levels = {
-            'supply_risk': 0.5,
-            'demand_risk': 0.5,
-            'operational_risk': 0.5
+            'supply_risk': 0.3,  # Lower initial risk
+            'demand_risk': 0.3,  # Lower initial risk
+            'operational_risk': 0.3  # Lower initial risk
         }
         initial_resilience = 1.0 - (sum(initial_risk_levels.values()) / len(initial_risk_levels))
         
@@ -37,11 +38,25 @@ class SimulationWorld(World):
             'completed_orders': [],
             'risk_levels': initial_risk_levels,
             'metrics': {
-                'resilience_score': initial_resilience,  # Start with a balanced resilience score
+                'resilience_score': initial_resilience,
                 'recovery_time': timedelta(),
                 'risk_exposure_trend': []
             }
         }
+
+    def add_agent(self, agent):
+        """Add an agent to the world and update state."""
+        super().add_agent(agent)
+        if agent not in self.agents:
+            self.agents.append(agent)
+        if 'agents' not in self.state:
+            self.state['agents'] = []
+        if agent not in self.state['agents']:
+            self.state['agents'].append(agent)
+        
+        # Initialize agent's interactions list if not exists
+        if not hasattr(agent, 'interactions'):
+            agent.interactions = []
 
     def get_current_state(self) -> Dict[str, Any]:
         """Get the current state of the world."""
@@ -341,16 +356,22 @@ def create_simulation_world(config: Dict[str, Any], simulation_id: str = None) -
     # Set random seed for reproducibility
     random.seed(config['simulation']['seed'])
     
-    # Create COO
-    coo = COOAgent("COO", config['coo'], simulation_id)
+    # Create COO with proper config structure
+    coo_config = {'coo': config['coo']}  # Wrap in proper structure
+    coo = COOAgent("COO", coo_config, simulation_id)
     world.add_agent(coo)
     
     # Create regional managers for each region
     regional_managers = []
     for region in Region:
+        # Create proper config structure for regional manager
+        manager_config = {
+            'regional_manager': config['regional_manager'],
+            'simulation': config['simulation']  # Include simulation config
+        }
         manager = RegionalManagerAgent(
             name=f"Manager_{region.value}",
-            config=config['regional_manager'],
+            config=manager_config,
             simulation_id=simulation_id,
             region=region
         )
@@ -361,9 +382,14 @@ def create_simulation_world(config: Dict[str, Any], simulation_id: str = None) -
     suppliers = []
     for region in Region:
         for i in range(config['simulation']['suppliers_per_region']):
+            # Create proper config structure for supplier
+            supplier_config = {
+                'supplier': config['supplier'],
+                'simulation': config['simulation']  # Include simulation config
+            }
             supplier = SupplierAgent(
                 name=f"Supplier_{region.value}_{i}",
-                config=config['supplier'],
+                config=supplier_config,
                 simulation_id=simulation_id,
                 region=region,
                 supplier_type='tier1'
@@ -371,45 +397,144 @@ def create_simulation_world(config: Dict[str, Any], simulation_id: str = None) -
             world.add_agent(supplier)
             suppliers.append(supplier)
     
+    # Create production facilities for each region
+    production_facilities = []
+    for region in Region:
+        # Create proper config structure for production facility
+        facility_config = {
+            'production_facility': config['production_facility'],
+            'simulation': config['simulation']  # Include simulation config
+        }
+        facility = ProductionFacilityAgent(
+            name=f"Facility_{region.value}",
+            region=region,
+            config=facility_config,
+            simulation_id=simulation_id
+        )
+        world.add_agent(facility)
+        production_facilities.append(facility)
+    
     # Create external event generators
     for event_type in ['weather', 'geopolitical', 'market']:
+        # Create proper config structure for event generator
+        event_config = {
+            'external_events': {
+                event_type: config['external_events'][event_type]
+            },
+            'simulation': config['simulation']  # Include simulation config
+        }
         event_generator = ExternalEventAgent(
             name=f"{event_type.capitalize()}EventGenerator",
-            config=config['external_events'][event_type],
+            config=event_config,
             simulation_id=simulation_id,
             event_type=event_type
         )
         world.add_agent(event_generator)
     
+    # Initialize world state with agents
+    world.state.update({
+        'coo_agent': coo,
+        'regional_managers': regional_managers,
+        'suppliers': suppliers,
+        'production_facilities': production_facilities,
+        'active_orders': [],
+        'completed_orders': [],
+        'order_lifecycle': {},
+        'current_datetime': datetime.now()
+    })
+    
     return world
 
 def simulate_supply_chain_operation(world: SimulationWorld, config: Dict[str, Any]) -> Dict[str, float]:
     """Run a single time step of the supply chain simulation."""
-    current_datetime = datetime.now()
+    # Get current time from world state and advance it by one day
+    current_datetime = world.state['current_datetime'] + timedelta(days=1)
     
     # Generate new orders
     new_orders = _generate_orders(current_datetime, config)
     active_orders = world.state.get('active_orders', []) + new_orders
     world.state['active_orders'] = active_orders
     
-    # Process orders through regional managers
+    # Assign orders to regional managers based on source region
     regional_managers = [agent for agent in world.agents if isinstance(agent, RegionalManagerAgent)]
-    for manager in regional_managers:
-        manager.manage_region(world.state)
+    for order in new_orders:
+        # Find the manager for this order's source region
+        manager = next((m for m in regional_managers if m.region == order.source_region), None)
+        if manager:
+            manager.receive_order(order)
     
-    # Update order statuses
+    # Process orders through regional managers
+    for manager in regional_managers:
+        # Process orders in the region using process_orders
+        processed_orders = manager.process_orders(current_datetime)
+        # Update the orders in place rather than extending
+        for processed in processed_orders:
+            if processed in world.state['active_orders']:
+                idx = world.state['active_orders'].index(processed)
+                world.state['active_orders'][idx] = processed
+    
+    # Update order statuses and record interactions
     completed_orders = []
     remaining_orders = []
     
-    for order in active_orders:
-        if order.status == OrderStatus.DELIVERED:
-            completed_orders.append(order)
-        elif _check_delivery(order, current_datetime, config):
-            order.update_status(OrderStatus.DELIVERED, current_datetime)
-            completed_orders.append(order)
-        else:
+    for order in world.state['active_orders']:
+        # Find the responsible agent for this order
+        responsible_agent = None
+        if hasattr(order, 'current_handler'):
+            responsible_agent = next(
+                (agent for agent in world.agents if agent.name == order.current_handler),
+                None
+            )
+        
+        # Progress order through states based on actual times
+        time_in_state = (current_datetime - order.status_update_time).total_seconds() / (24 * 3600)  # days
+        
+        try:
+            if order.status == OrderStatus.NEW:
+                # Orders should move to PRODUCTION quickly
+                if time_in_state >= 0.5 and responsible_agent:  # Half a day in NEW state
+                    order.update_status(OrderStatus.PRODUCTION, current_datetime, responsible_agent.name)
+            
+            elif order.status == OrderStatus.PRODUCTION:
+                # Orders should move to READY_FOR_SHIPPING after production time
+                if time_in_state >= order.production_time and responsible_agent:
+                    order.update_status(OrderStatus.READY_FOR_SHIPPING, current_datetime, responsible_agent.name)
+            
+            elif order.status == OrderStatus.READY_FOR_SHIPPING:
+                # Orders should move to IN_TRANSIT quickly
+                if time_in_state >= 0.5 and responsible_agent:  # Half a day to prepare for shipping
+                    order.update_status(OrderStatus.IN_TRANSIT, current_datetime, responsible_agent.name)
+            
+            elif order.status == OrderStatus.IN_TRANSIT:
+                # Check if order should be delivered based on transit time
+                if time_in_state >= (order.transit_time / 24) and responsible_agent:  # Convert transit_time from hours to days
+                    order.update_status(OrderStatus.DELIVERED, current_datetime, responsible_agent.name)
+                    order.actual_delivery_time = current_datetime
+                    completed_orders.append(order)
+                    continue
+            
+            # Check for delays
             if _check_delays(order, current_datetime, config):
-                order.update_status(OrderStatus.DELAYED, current_datetime)
+                if responsible_agent and order.status != OrderStatus.DELAYED:
+                    order.update_status(OrderStatus.DELAYED, current_datetime, responsible_agent.name)
+                    interaction = {
+                        'type': 'DELAY_DETECTED',
+                        'timestamp': current_datetime,
+                        'target_agent': order.current_handler,
+                        'order_id': order.id,
+                        'status': OrderStatus.DELAYED,
+                        'success': False,
+                        'message': f"Order {order.id} is experiencing delays",
+                        'simulation_day': world.current_datetime.day if hasattr(world, 'current_datetime') else 0
+                    }
+                    if not hasattr(responsible_agent, 'interactions'):
+                        responsible_agent.interactions = []
+                    responsible_agent.interactions.append(interaction)
+        except ValueError as e:
+            # Log invalid status transitions but continue processing
+            print(f"Warning: Invalid status transition for order {order.id}: {str(e)}")
+        
+        if order.status != OrderStatus.DELIVERED:
             remaining_orders.append(order)
     
     # Update world state
@@ -424,35 +549,84 @@ def simulate_supply_chain_operation(world: SimulationWorld, config: Dict[str, An
         config=config
     )
     
+    # Calculate resilience score based on completion rate and delays
+    completion_rate = metrics['completion_rate']
+    on_time_rate = metrics['on_time_delivery_rate']
+    avg_delay = metrics['average_delay']
+    
+    # Normalize delay impact (0 delay = 1.0, 5+ days delay = 0.0)
+    delay_factor = max(0.0, min(1.0, 1.0 - (avg_delay / 5.0)))
+    
+    # Calculate base risk level from current metrics
+    risk_level = 1.0 - (completion_rate * 0.4 + on_time_rate * 0.4 + delay_factor * 0.2)
+    
+    # Calculate resilience as weighted average of metrics with more balanced weights
+    resilience_score = (
+        completion_rate * 0.3 +      # 30% weight on completion
+        on_time_rate * 0.3 +        # 30% weight on on-time delivery
+        (1 - delay_factor) * 0.2 +  # 20% weight on delay factor (inverted)
+        (1 - risk_level) * 0.2      # 20% weight on risk level (inverted)
+    )
+    
+    # Add resilience metrics to the result
+    metrics.update({
+        'resilience_score': resilience_score,
+        'risk_level': max(0.2, 1.0 - resilience_score)  # Ensure risk level doesn't go too low
+    })
+    
     return metrics
 
 def _generate_orders(current_datetime: datetime, config: Dict[str, Any]) -> List[Order]:
-    """Generate new orders based on base demand and random factors."""
-    orders = []
-    base_demand = config['simulation']['base_demand']
+    """Generate new orders for this time step."""
+    new_orders = []
+    base_demand = config['simulation'].get('base_demand', 2)
     
-    for source in Region:
-        for dest in Region:
-            if source != dest:
-                # Random demand variation
-                demand = int(base_demand * (0.5 + random.random()))
-                
-                for _ in range(demand):
-                    delivery_time = _estimate_delivery_time(source, dest, config)
-                    expected_delivery = current_datetime + timedelta(days=delivery_time)
-                    
-                    order = Order(
-                        id=str(uuid.uuid4()),
-                        product_type="Standard",
-                        quantity=random.randint(1, 100),
-                        source_region=source,
-                        destination_region=dest,
-                        creation_time=current_datetime,
-                        expected_delivery_time=expected_delivery
-                    )
-                    orders.append(order)
+    # Generate orders for each region
+    for source_region in Region:
+        # Calculate number of orders based on base demand and random variation
+        num_orders = max(1, int(base_demand * random.uniform(0.8, 1.2)))
+        
+        for _ in range(num_orders):
+            # Choose a different region as destination
+            destination_region = random.choice([r for r in Region if r != source_region])
+            
+            # Calculate realistic production and transit times based on distance and complexity
+            base_production_time = config['production_facility'].get('base_production_time', 3)
+            production_time = base_production_time * random.uniform(0.8, 1.2)  # Vary by ±20%
+            
+            # Calculate transit time based on regions
+            base_transit_time = 24.0  # Base transit time in hours
+            if source_region.value in ['North America', 'Europe'] and destination_region.value in ['North America', 'Europe']:
+                transit_time = base_transit_time * 1.0  # Standard time for NA-EU routes
+            elif source_region.value in ['East Asia', 'Southeast Asia', 'South Asia'] and destination_region.value in ['East Asia', 'Southeast Asia', 'South Asia']:
+                transit_time = base_transit_time * 0.8  # Faster for intra-Asia routes
+            else:
+                transit_time = base_transit_time * 1.5  # Longer for cross-continental routes
+            
+            # Add random variation to transit time
+            transit_time *= random.uniform(0.9, 1.1)  # Vary by ±10%
+            
+            # Calculate expected delivery time based on production and transit times
+            total_time = production_time + (transit_time / 24.0)  # Convert transit time to days
+            expected_delivery_time = current_datetime + timedelta(days=total_time)
+            
+            # Create order with realistic parameters
+            order = Order(
+                id=f"ORD_{source_region.value}_{current_datetime.timestamp()}_{_}",
+                product_type="Standard",
+                quantity=random.randint(5, 15),  # Smaller quantities
+                source_region=source_region,
+                destination_region=destination_region,
+                creation_time=current_datetime,
+                expected_delivery_time=expected_delivery_time,
+                production_time=production_time,
+                transit_time=transit_time,
+                status=OrderStatus.NEW,
+                current_location=source_region
+            )
+            new_orders.append(order)
     
-    return orders
+    return new_orders
 
 def _check_delivery(order: Order, current_datetime: datetime, config: Dict[str, Any]) -> bool:
     """Check if an order should be marked as delivered."""

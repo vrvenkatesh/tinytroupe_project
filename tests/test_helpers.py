@@ -19,7 +19,7 @@ class TestArtifactGenerator:
             simulation_id (str): Unique identifier for the simulation run.
         """
         self.simulation_id = simulation_id
-        self.results_dir = os.path.join("test_results", f"simulation_{simulation_id}")
+        self.results_dir = os.path.join("test_results", simulation_id)
         os.makedirs(self.results_dir, exist_ok=True)
         
         # Initialize extractors
@@ -44,13 +44,30 @@ class TestArtifactGenerator:
             
             if 'metrics' in metrics:
                 for metric_name, metric_data in metrics['metrics'].items():
-                    writer.writerow([
-                        metric_name,
-                        round(metric_data['mean'], 3),
-                        round(metric_data['std'], 3),
-                        round(metric_data['min'], 3),
-                        round(metric_data['max'], 3)
-                    ])
+                    try:
+                        # Convert all numeric values to float with proper error handling
+                        mean_val = float(metric_data.get('mean', 0.0) or 0.0)
+                        std_val = float(metric_data.get('std', 0.0) or 0.0)
+                        min_val = float(metric_data.get('min', 0.0) or 0.0)
+                        max_val = float(metric_data.get('max', 0.0) or 0.0)
+                        
+                        # Round all values to 3 decimal places
+                        writer.writerow([
+                            metric_name,
+                            round(mean_val, 3),
+                            round(std_val, 3),
+                            round(min_val, 3),
+                            round(max_val, 3)
+                        ])
+                    except (ValueError, TypeError) as e:
+                        # If conversion fails, write zeros with a note in the metric name
+                        writer.writerow([
+                            f"{metric_name} (invalid numeric data)",
+                            0.000,
+                            0.000,
+                            0.000,
+                            0.000
+                        ])
             
             writer.writerow([])  # Empty row for separation
             
@@ -59,7 +76,13 @@ class TestArtifactGenerator:
             writer.writerow(['Status', 'Count'])
             if 'order_status' in metrics:
                 for status, count in metrics['order_status'].items():
-                    writer.writerow([status, count])
+                    try:
+                        # Ensure count is converted to integer with proper error handling
+                        count_val = int(float(count)) if count is not None else 0
+                        writer.writerow([status, count_val])
+                    except (ValueError, TypeError):
+                        # If conversion fails, write 0 with a note
+                        writer.writerow([f"{status} (invalid count)", 0])
 
     def save_order_lifecycle(self, world: TinyWorld, scenario_name: str) -> None:
         """Save complete order lifecycle data to CSV file.
@@ -84,71 +107,77 @@ class TestArtifactGenerator:
                 'Current Location', 'Production Time', 'Transit Time', 'Delay Time',
                 'Expected Delivery', 'Actual Delivery', 'Transportation Mode',
                 'Source Region', 'Destination Region', 'Simulation Day', 'Is Delayed',
-                'Is On Time'
+                'Is On Time', 'Handler'
             ])
             
             # Write order lifecycle events
             event_index = 0
             for order in all_orders:
-                # Extract order data with proper error handling
-                order_data = {
-                    'id': getattr(order, 'id', f'ORD_{event_index:08d}'),
-                    'creation_time': getattr(order, 'creation_time', datetime.now()),
-                    'status': getattr(order, 'status', 'NEW'),
-                    'current_location': getattr(order, 'current_location', 'UNKNOWN'),
-                    'production_time': float(getattr(order, 'production_time', 0)),
-                    'transit_time': float(getattr(order, 'transit_time', 0)),
-                    'delay_time': float(getattr(order, 'delay_time', 0)),
-                    'expected_delivery_time': getattr(order, 'expected_delivery_time', None),
-                    'actual_delivery_time': getattr(order, 'actual_delivery_time', None),
-                    'transportation_mode': getattr(order, 'transportation_mode', 'UNKNOWN'),
-                    'source_region': getattr(order, 'source_region', 'UNKNOWN'),
-                    'destination_region': getattr(order, 'destination_region', 'UNKNOWN'),
-                    'simulation_day': int(getattr(order, 'simulation_day', event_index % 10))
-                }
+                # Get the complete status history
+                status_history = order.get_status_history()
                 
-                # Format timestamps
-                creation_time_str = order_data['creation_time'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(order_data['creation_time'], datetime) else str(order_data['creation_time'])
-                expected_delivery_str = order_data['expected_delivery_time'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(order_data['expected_delivery_time'], datetime) else 'NA'
-                actual_delivery_str = order_data['actual_delivery_time'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(order_data['actual_delivery_time'], datetime) else 'NA'
-                
-                # Calculate derived fields - Updated logic for mutual exclusivity
-                is_delayed = False
-                is_on_time = False
-                
-                if actual_delivery_str != 'NA':
-                    # Order has been delivered - check if it was delayed
-                    is_delayed = bool(order_data['delay_time'] > 0)
-                    is_on_time = not is_delayed
-                elif expected_delivery_str != 'NA':
-                    # Order not delivered yet - check if it's past expected delivery
-                    expected_time = order_data['expected_delivery_time']
-                    current_time = order_data['creation_time']
-                    if isinstance(expected_time, datetime) and isinstance(current_time, datetime):
-                        is_delayed = current_time > expected_time
+                for event in status_history:
+                    # Extract event data
+                    event_data = {
+                        'id': order.id,
+                        'event_time': event['timestamp'],
+                        'status': event['status'],
+                        'current_location': event['location'],
+                        'handler': event.get('handler', 'unknown'),
+                        'production_time': float(getattr(order, 'production_time', 0)),
+                        'transit_time': float(getattr(order, 'transit_time', 0)),
+                        'delay_time': float(getattr(order, 'delay_time', 0)),
+                        'expected_delivery_time': order.expected_delivery_time,
+                        'actual_delivery_time': order.actual_delivery_time,
+                        'transportation_mode': getattr(order, 'transportation_mode', 'UNKNOWN'),
+                        'source_region': order.source_region,
+                        'destination_region': order.destination_region,
+                        'simulation_day': event_index % 10  # Simple simulation day calculation
+                    }
+                    
+                    # Format timestamps
+                    event_time_str = event_data['event_time'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(event_data['event_time'], datetime) else str(event_data['event_time'])
+                    expected_delivery_str = event_data['expected_delivery_time'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(event_data['expected_delivery_time'], datetime) else 'NA'
+                    actual_delivery_str = event_data['actual_delivery_time'].strftime('%Y-%m-%d %H:%M:%S') if isinstance(event_data['actual_delivery_time'], datetime) else 'NA'
+                    
+                    # Calculate derived fields
+                    is_delayed = False
+                    is_on_time = False
+                    
+                    if actual_delivery_str != 'NA':
+                        # Order has been delivered - check if it was delayed
+                        is_delayed = bool(event_data['delay_time'] > 0)
                         is_on_time = not is_delayed
-                
-                # Write row with proper type handling
-                row = [
-                    event_index,
-                    str(order_data['id']),
-                    creation_time_str,
-                    str(order_data['status'].value if hasattr(order_data['status'], 'value') else order_data['status']),
-                    str(order_data['current_location'].value if hasattr(order_data['current_location'], 'value') else order_data['current_location']),
-                    order_data['production_time'],
-                    order_data['transit_time'],
-                    order_data['delay_time'],
-                    expected_delivery_str,
-                    actual_delivery_str,
-                    str(order_data['transportation_mode'].value if hasattr(order_data['transportation_mode'], 'value') else order_data['transportation_mode']),
-                    str(order_data['source_region'].value if hasattr(order_data['source_region'], 'value') else order_data['source_region']),
-                    str(order_data['destination_region'].value if hasattr(order_data['destination_region'], 'value') else order_data['destination_region']),
-                    order_data['simulation_day'],
-                    is_delayed,
-                    is_on_time
-                ]
-                writer.writerow(row)
-                event_index += 1
+                    elif expected_delivery_str != 'NA':
+                        # Order not delivered yet - check if it's past expected delivery
+                        expected_time = event_data['expected_delivery_time']
+                        current_time = event_data['event_time']
+                        if isinstance(expected_time, datetime) and isinstance(current_time, datetime):
+                            is_delayed = current_time > expected_time
+                            is_on_time = not is_delayed
+                    
+                    # Write row with proper type handling
+                    row = [
+                        event_index,
+                        str(event_data['id']),
+                        event_time_str,
+                        str(event_data['status'].value if hasattr(event_data['status'], 'value') else event_data['status']),
+                        str(event_data['current_location'].value if hasattr(event_data['current_location'], 'value') else event_data['current_location']),
+                        event_data['production_time'],
+                        event_data['transit_time'],
+                        event_data['delay_time'],
+                        expected_delivery_str,
+                        actual_delivery_str,
+                        str(event_data['transportation_mode'].value if hasattr(event_data['transportation_mode'], 'value') else event_data['transportation_mode']),
+                        str(event_data['source_region'].value if hasattr(event_data['source_region'], 'value') else event_data['source_region']),
+                        str(event_data['destination_region'].value if hasattr(event_data['destination_region'], 'value') else event_data['destination_region']),
+                        event_data['simulation_day'],
+                        is_delayed,
+                        is_on_time,
+                        event_data['handler']
+                    ]
+                    writer.writerow(row)
+                    event_index += 1
 
     def save_agent_interactions(self, world: TinyWorld, scenario_name: str) -> None:
         """Save agent interaction data to CSV file.
@@ -159,8 +188,8 @@ class TestArtifactGenerator:
         """
         output_file = os.path.join(self.results_dir, f"{scenario_name}_agent_interactions.csv")
         
-        # Get all agents from the world state
-        agents = world.state.get('agents', [])
+        # Get all agents directly from world
+        agents = getattr(world, 'agents', [])
         interactions = []
         
         # Collect all interactions
@@ -168,18 +197,20 @@ class TestArtifactGenerator:
             agent_interactions = getattr(agent, 'interactions', [])
             for interaction in agent_interactions:
                 if interaction:  # Skip None or empty interactions
-                    interactions.append({
-                        'agent_id': str(getattr(agent, 'id', 'unknown')),
-                        'agent_type': getattr(agent, 'agent_type', type(agent).__name__),  # Get explicit type or class name
-                        'interaction_type': str(getattr(interaction, 'type', 'unknown')),
-                        'timestamp': getattr(interaction, 'timestamp', datetime.now()),
-                        'target_agent': str(getattr(interaction, 'target_agent', 'unknown')),
-                        'order_id': str(getattr(interaction, 'order_id', 'unknown')),
-                        'status': getattr(interaction, 'status', 'unknown'),
-                        'success': bool(getattr(interaction, 'success', False)),
-                        'message': str(getattr(interaction, 'message', '')),
-                        'simulation_day': int(getattr(interaction, 'simulation_day', 0))
-                    })
+                    # Handle interaction data stored as dictionary
+                    if isinstance(interaction, dict):
+                        interactions.append({
+                            'agent_id': str(getattr(agent, 'id', agent.name)),  # Use name if id not available
+                            'agent_type': getattr(agent, 'agent_type', type(agent).__name__),
+                            'interaction_type': str(interaction.get('type', 'unknown')),
+                            'timestamp': interaction.get('timestamp', datetime.now()),
+                            'target_agent': str(interaction.get('target_agent', 'unknown')),
+                            'order_id': str(interaction.get('order_id', 'unknown')),
+                            'status': interaction.get('status', 'unknown'),
+                            'success': bool(interaction.get('success', False)),
+                            'message': str(interaction.get('message', '')),
+                            'simulation_day': int(interaction.get('simulation_day', 0))
+                        })
         
         with open(output_file, 'w', newline='') as f:
             writer = csv.writer(f)

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Dict, Any
 
 @dataclass
-class Agent:
+class BaseAgent:
     """Base class for all agents in the simulation."""
     name: str
     config: Dict[str, Any]

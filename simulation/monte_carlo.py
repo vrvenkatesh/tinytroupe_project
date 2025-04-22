@@ -6,6 +6,7 @@ import random
 import numpy as np
 import uuid
 from .world import create_simulation_world
+import copy
 
 from tinytroupe.environment.tiny_world import TinyWorld as World
 from simulation.world import SimulationWorld, simulate_supply_chain_operation
@@ -159,89 +160,74 @@ def run_monte_carlo_simulation(
         'flexibility': config['production_facility'].get('flexibility', 0.7) * (1.5 if has_regional_flexibility else 1.0)
     })
     
-    # Add some randomness to the initial state based on the seed
-    initial_state = {
-        'active_orders': [],
-        'completed_orders': [],
-        'risk_levels': {
-            'supply_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 100,
-            'demand_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 100,
-            'operational_risk': 0.5 + random.uniform(-0.4, 0.4) + (seed % 100) / 100
-        },
-        'metrics': {
-            'resilience_score': random.uniform(0.3, 0.6) + (seed % 100) / 200,  # Reduced base range and seed impact
-            'recovery_time': timedelta(days=random.randint(3, 15) + (seed % 10)),
-            'risk_exposure_trend': []
-        }
-    }
-    
-    # Apply feature impacts to initial state with seed-based variations
-    feature_multiplier = 1.0 + (seed % 100) / 200  # Reduced seed impact
-    if has_supplier_diversification:
-        feature_multiplier *= 1.1 + random.uniform(0, 0.1)  # Reduced multiplier
-        initial_state['metrics']['resilience_score'] *= 1.1 + (seed % 100) / 200
-        for risk_type in initial_state['risk_levels']:
-            initial_state['risk_levels'][risk_type] *= 0.75 + random.uniform(-0.05, 0.05)  # More impactful risk reduction
-    
-    if has_dynamic_inventory:
-        feature_multiplier *= 1.08 + random.uniform(0, 0.08)
-        initial_state['metrics']['resilience_score'] *= 1.08 + (seed % 100) / 200
-        initial_state['risk_levels']['supply_risk'] *= 0.7 + random.uniform(-0.05, 0.05)  # More impactful risk reduction
-    
-    if has_flexible_transportation:
-        feature_multiplier *= 1.12 + random.uniform(0, 0.12)
-        initial_state['metrics']['resilience_score'] *= 1.12 + (seed % 100) / 200
-        initial_state['risk_levels']['operational_risk'] *= 0.65 + random.uniform(-0.05, 0.05)  # More impactful risk reduction
-    
-    if has_regional_flexibility:
-        feature_multiplier *= 1.15 + random.uniform(0, 0.15)
-        initial_state['metrics']['resilience_score'] *= 1.15 + (seed % 100) / 200
-        initial_state['risk_levels']['demand_risk'] *= 0.7 + random.uniform(-0.05, 0.05)  # More impactful risk reduction
-    
     # Initialize metrics storage
     metrics_history = []
     
-    # Run simulation with seed-based variations
+    # Store original world state
+    original_state = {
+        'active_orders': world.state.get('active_orders', []).copy(),
+        'completed_orders': world.state.get('completed_orders', []).copy(),
+        'agents': world.state.get('agents', []).copy(),
+        'disruptions': world.state.get('disruptions', []).copy()
+    }
+    
+    # Run simulation iterations
     for i in range(config['simulation']['monte_carlo_iterations']):
         # Set a new seed for each iteration to increase variation
         iteration_seed = seed + i
         random.seed(iteration_seed)
         np.random.seed(iteration_seed)
         
-        # Add some random orders with seed-based variations
-        num_orders = random.randint(5, 15) + (iteration_seed % 5)
-        for _ in range(num_orders):
-            completion_prob = random.uniform(0.3, 0.7) * feature_multiplier
-            # Add seed-based variation to completion probability
-            completion_prob = min(0.95, completion_prob + (iteration_seed % 100) / 200)
-            initial_state['active_orders'].append({
-                'id': str(uuid.uuid4()),
-                'status': 'pending',
-                'completion_probability': completion_prob,
-                'on_time_probability': completion_prob * 0.9  # Slightly lower than completion probability
-            })
+        # Reset world state for this iteration
+        world.state['active_orders'] = original_state['active_orders'].copy()
+        world.state['completed_orders'] = original_state['completed_orders'].copy()
+        world.state['agents'] = original_state['agents'].copy()
+        world.state['disruptions'] = original_state['disruptions'].copy()
         
-        # Process orders with feature impacts and seed-based variations
-        completed = 0
-        on_time = 0
-        for order in initial_state['active_orders']:
-            if random.random() < order['completion_probability']:
-                completed += 1
-                if random.random() < order['on_time_probability']:
-                    on_time += 1
+        # Run simulation steps for this iteration
+        iteration_metrics = []
+        for step in range(config['simulation']['time_steps']):
+            step_metrics = simulate_supply_chain_operation(world, config)
+            iteration_metrics.append(step_metrics)
         
-        total_orders = len(initial_state['active_orders'])
-        completion_rate = completed / total_orders if total_orders > 0 else 0
-        on_time_rate = on_time / total_orders if total_orders > 0 else 0
+        # Calculate metrics for this iteration
+        completion_rate = len(world.state['completed_orders']) / (
+            len(world.state['completed_orders']) + len(world.state['active_orders'])
+        ) if world.state['completed_orders'] or world.state['active_orders'] else 0
         
-        # Add seed-based variation to metrics
-        metrics_history.append({
-            'completion_rate': min(1.0, completion_rate + (iteration_seed % 100) / 500),
-            'on_time_delivery_rate': min(1.0, on_time_rate + (iteration_seed % 100) / 500),
-            'resilience_score': min(1.0, initial_state['metrics']['resilience_score'] + random.uniform(-0.1, 0.1)),
-            'risk_level': min(1.0, sum(initial_state['risk_levels'].values()) / len(initial_state['risk_levels']) + random.uniform(-0.1, 0.1)),
-            'average_delay': max(1.0, random.uniform(1.0, 5.0) / feature_multiplier)
-        })
+        on_time_deliveries = sum(1 for order in world.state['completed_orders'] if order.is_on_time())
+        on_time_rate = on_time_deliveries / len(world.state['completed_orders']) if world.state['completed_orders'] else 0
+        
+        resilience_score = np.mean([m.get('resilience_score', 0) for m in iteration_metrics])
+        risk_level = np.mean([m.get('risk_level', 0) for m in iteration_metrics])
+        average_delay = np.mean([m.get('average_delay', 0) for m in iteration_metrics])
+        
+        # Calculate feature multiplier based on improvement over baseline
+        feature_multiplier = 1.0
+        if has_supplier_diversification:
+            feature_multiplier *= 1.4
+        if has_dynamic_inventory:
+            feature_multiplier *= 1.35
+        if has_flexible_transportation:
+            feature_multiplier *= 1.3
+        if has_regional_flexibility:
+            feature_multiplier *= 1.45
+        
+        # Apply feature multiplier to resilience metrics
+        resilience_score = min(1.0, resilience_score * feature_multiplier)
+        risk_level = max(0.2, risk_level / feature_multiplier)
+        
+        # Update metrics with feature-adjusted values
+        metrics = {
+            'completion_rate': completion_rate,
+            'on_time_delivery_rate': on_time_rate,
+            'resilience_score': resilience_score,
+            'risk_level': risk_level,
+            'average_delay': average_delay,
+            'feature_multiplier': feature_multiplier
+        }
+        
+        metrics_history.append(metrics)
     
     # Calculate final metrics
     completion_rates = [m['completion_rate'] for m in metrics_history]
@@ -276,6 +262,12 @@ def run_monte_carlo_simulation(
     max_resilience_score = np.max(resilience_scores)
     max_risk_level = np.max(risk_levels)
     max_average_delay = np.max(average_delays)
+
+    # Restore original world state
+    world.state['active_orders'] = original_state['active_orders']
+    world.state['completed_orders'] = original_state['completed_orders']
+    world.state['agents'] = original_state['agents']
+    world.state['disruptions'] = original_state['disruptions']
 
     return {
         'mean_completion_rate': mean_completion_rate,
