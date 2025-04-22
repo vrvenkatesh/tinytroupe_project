@@ -1,0 +1,12 @@
+Core Metrics
+Metric,Mean,Std Dev,Min,Max
+resilience_score,1.0,0.0,1.0,1.0
+recovery_time,0.5,0.1,0.3,0.7
+service_level,0.858,0.048,0.79,0.913
+
+Order Status Summary
+Status,Count
+DELIVERED,3
+IN_TRANSIT,0
+PRODUCTION,0
+NEW,0

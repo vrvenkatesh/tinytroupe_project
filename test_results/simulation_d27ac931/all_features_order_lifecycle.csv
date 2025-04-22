@@ -1,0 +1,41 @@
+Event Index,Order ID,Event Date,Current Status,Current Location,Production Time,Transit Time,Delay Time,Expected Delivery,Actual Delivery,Transportation Mode,Source Region,Destination Region,Simulation Day,Is Delayed,Is On Time
+0,ORD_00000000,2025-04-21 16:45:49,NEW,North America,0.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,0,False,True
+1,ORD_00000000,2025-04-22 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,1,False,True
+2,ORD_00000000,2025-04-23 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,2,False,True
+3,ORD_00000000,2025-04-24 16:45:49,READY,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,3,False,True
+4,ORD_00000000,2025-04-25 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,4,False,True
+5,ORD_00000000,2025-04-26 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,5,False,True
+6,ORD_00000000,2025-04-27 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,6,False,True
+7,ORD_00000001,2025-04-21 16:45:49,NEW,North America,0.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,0,False,True
+8,ORD_00000001,2025-04-22 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,1,False,True
+9,ORD_00000001,2025-04-23 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,2,False,True
+10,ORD_00000001,2025-04-24 16:45:49,READY,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,3,False,True
+11,ORD_00000001,2025-04-25 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,4,False,True
+12,ORD_00000001,2025-04-26 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,5,False,True
+13,ORD_00000001,2025-04-27 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,6,False,True
+14,ORD_00000002,2025-04-21 16:45:49,NEW,North America,0.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,0,False,True
+15,ORD_00000002,2025-04-22 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,1,False,True
+16,ORD_00000002,2025-04-23 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,2,False,True
+17,ORD_00000002,2025-04-24 16:45:49,READY,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,3,False,True
+18,ORD_00000002,2025-04-25 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,4,False,True
+19,ORD_00000002,2025-04-26 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,5,False,True
+20,ORD_00000002,2025-04-27 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,6,False,True
+21,ORD_00000003,2025-04-21 16:45:49,NEW,North America,0.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,0,False,True
+22,ORD_00000003,2025-04-22 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,1,False,True
+23,ORD_00000003,2025-04-23 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,2,False,True
+24,ORD_00000003,2025-04-24 16:45:49,READY,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,3,False,True
+25,ORD_00000003,2025-04-25 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,4,False,True
+26,ORD_00000003,2025-04-26 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,5,False,True
+27,ORD_00000003,2025-04-27 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,6,False,True
+28,ORD_00000004,2025-04-21 16:45:49,NEW,North America,0.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,0,False,True
+29,ORD_00000004,2025-04-22 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,1,False,True
+30,ORD_00000004,2025-04-23 16:45:49,PRODUCTION,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,2,False,True
+31,ORD_00000004,2025-04-24 16:45:49,READY,North America,2.0,0.0,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,3,False,True
+32,ORD_00000004,2025-04-25 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,4,False,True
+33,ORD_00000004,2025-04-26 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,5,False,True
+34,ORD_00000004,2025-04-27 16:45:49,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-27 16:45:49,NA,Ground,North America,Europe,6,False,True
+35,ORD_00000000,2025-04-28 16:45:49,DELIVERED,Europe,0.0,0.0,0.5,2025-04-27 16:45:49,2025-04-28 16:45:49,Ground,North America,Europe,7,True,False
+36,ORD_00000001,2025-04-28 16:45:49,DELIVERED,Europe,0.0,0.0,0.5,2025-04-27 16:45:49,2025-04-28 16:45:49,Ground,North America,Europe,7,True,False
+37,ORD_00000002,2025-04-28 16:45:49,DELIVERED,Europe,0.0,0.0,0.5,2025-04-27 16:45:49,2025-04-28 16:45:49,Ground,North America,Europe,7,True,False
+38,ORD_00000003,2025-04-28 16:45:49,DELIVERED,Europe,0.0,0.0,0.5,2025-04-27 16:45:49,2025-04-28 16:45:49,Ground,North America,Europe,7,True,False
+39,ORD_00000004,2025-04-28 16:45:49,DELIVERED,Europe,0.0,0.0,0.5,2025-04-27 16:45:49,2025-04-28 16:45:49,Ground,North America,Europe,7,True,False

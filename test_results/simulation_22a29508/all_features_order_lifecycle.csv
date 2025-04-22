@@ -1,0 +1,16 @@
+Event Index,Order ID,Event Date,Current Status,Current Location,Production Time,Transit Time,Delay Time,Expected Delivery,Actual Delivery,Transportation Mode,Source Region,Destination Region,Simulation Day,Is Delayed,Is On Time
+0,ORD_00000000,2025-04-21 16:58:26,NEW,North America,0.0,0.0,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,0,False,True
+1,ORD_00000000,2025-04-22 16:58:26,PRODUCTION,North America,2.0,0.0,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,1,False,True
+2,ORD_00000000,2025-04-23 16:58:26,READY,North America,2.0,0.0,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,2,False,True
+3,ORD_00000000,2025-04-24 16:58:26,IN_TRANSIT,Europe,0.0,1.5,0.5,2025-04-28 16:58:26,NA,Ground,North America,Europe,3,False,True
+4,ORD_00000001,2025-04-21 16:58:26,NEW,North America,0.0,0.0,0.5,2025-04-28 16:58:26,NA,Ground,North America,Europe,0,False,True
+5,ORD_00000001,2025-04-22 16:58:26,PRODUCTION,North America,2.0,0.0,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,1,False,True
+6,ORD_00000001,2025-04-23 16:58:26,READY,North America,2.0,0.0,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,2,False,True
+7,ORD_00000001,2025-04-24 16:58:26,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,3,False,True
+8,ORD_00000002,2025-04-21 16:58:26,NEW,North America,0.0,0.0,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,0,False,True
+9,ORD_00000002,2025-04-22 16:58:26,PRODUCTION,North America,2.0,0.0,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,1,False,True
+10,ORD_00000002,2025-04-23 16:58:26,READY,North America,2.0,0.0,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,2,False,True
+11,ORD_00000002,2025-04-24 16:58:26,IN_TRANSIT,Europe,0.0,1.5,0.0,2025-04-28 16:58:26,NA,Ground,North America,Europe,3,False,True
+12,ORD_00000000,2025-04-25 16:58:26,DELIVERED,Europe,0.0,0.0,0.0,2025-04-28 16:58:26,2025-04-25 16:58:26,Ground,North America,Europe,4,False,True
+13,ORD_00000001,2025-04-25 16:58:26,DELIVERED,Europe,0.0,0.0,0.0,2025-04-28 16:58:26,2025-04-25 16:58:26,Ground,North America,Europe,4,False,True
+14,ORD_00000002,2025-04-25 16:58:26,DELIVERED,Europe,0.0,0.0,0.0,2025-04-28 16:58:26,2025-04-25 16:58:26,Ground,North America,Europe,4,False,True
