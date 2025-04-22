@@ -1,15 +1,71 @@
 # Supply Chain Resilience Optimization Simulation
 
-This project implements a Monte Carlo simulation to evaluate supply chain resilience improvements in a global manufacturing context. The simulation models various supply chain strategies and their impact on resilience, cost, and performance metrics.
+This project implements a Monte Carlo simulation framework to evaluate and optimize supply chain resilience in a global manufacturing context. The simulation uses an agent-based approach to model complex interactions between different supply chain actors and assess the impact of various resilience strategies.
 
 ## Overview
 
 The simulation models a global supply chain with the following components:
 
-- Geographic regions (North America, Europe, East Asia, Southeast Asia, South Asia)
-- Supply chain agents (COO, Regional Managers, Suppliers, Logistics Providers, Production Facilities)
-- External events (Weather, Geopolitical, Market)
-- Resilience strategies (Supplier Diversification, Dynamic Inventory, Flexible Transportation, Regional Flexibility)
+### Agent Types and Roles
+
+1. **Chief Operating Officer (COO)**
+   - Strategic decision-making and global oversight
+   - Risk assessment and mitigation strategies
+   - Performance monitoring and resource allocation
+
+2. **Regional Managers**
+   - Local market expertise and operational control
+   - Supplier relationship management
+   - Regional inventory and logistics optimization
+
+3. **Suppliers**
+   - Production capacity and reliability
+   - Quality control and standards
+   - Lead time management
+
+4. **Logistics Providers**
+   - Transportation mode selection
+   - Route optimization
+   - Delivery scheduling
+
+5. **Production Facilities**
+   - Manufacturing capabilities
+   - Quality assurance
+   - Capacity management
+
+### Order Lifecycle States
+
+1. **NEW**
+   - Initial order creation
+   - Assignment to regional manager
+
+2. **PRODUCTION**
+   - Order in manufacturing phase
+   - Quality checks and standards verification
+
+3. **READY_FOR_SHIPPING**
+   - Production completed
+   - Awaiting logistics assignment
+
+4. **IN_TRANSIT**
+   - Order being transported
+   - Route and mode tracking
+
+5. **DELIVERED**
+   - Successful delivery to destination
+   - Performance metrics calculation
+
+6. **CANCELLED**
+   - Order termination
+   - Root cause analysis
+
+7. **DELAYED**
+   - Processing or shipping delays
+   - Impact assessment
+
+8. **QUALITY_CHECK_FAILED**
+   - Quality standards not met
+   - Corrective actions required
 
 ## Installation
 
@@ -26,135 +82,202 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the simulation:
+### Running Simulations
+
+1. Basic simulation:
 ```bash
-python supply_chain_simulation.py
+python supply_chain_sim.py
 ```
 
-The simulation will:
-1. Run a baseline scenario
-2. Run scenarios with individual resilience strategies
-3. Run a scenario with all strategies combined
-4. Generate visualizations and export results
+2. Monte Carlo simulation with specific features:
+```python
+from simulation import run_monte_carlo_simulation, create_simulation_world
+from simulation.config import DEFAULT_CONFIG
 
-## Outputs
+# Create simulation world
+world = create_simulation_world(DEFAULT_CONFIG)
 
-The simulation generates:
-1. `supply_chain_simulation_results.png`: Visual comparison of metrics across scenarios
-2. `supply_chain_simulation_results.csv`: Detailed numerical results
+# Run simulation with specific features
+results = run_monte_carlo_simulation(
+    config=DEFAULT_CONFIG,
+    world=world,
+    has_supplier_diversification=True,
+    has_dynamic_inventory=True,
+    has_flexible_transportation=True,
+    has_regional_flexibility=True
+)
+```
+
+### Resilience Strategies
+
+1. **Supplier Diversification**
+   - Multiple suppliers per region
+   - Risk distribution
+   - Capacity flexibility
+
+2. **Dynamic Inventory**
+   - Adaptive stock levels
+   - Regional buffer optimization
+   - Demand-driven adjustments
+
+3. **Flexible Transportation**
+   - Multi-modal options
+   - Route alternatives
+   - Cost-time optimization
+
+4. **Regional Flexibility**
+   - Cross-region production
+   - Market adaptability
+   - Resource reallocation
+
+## Test Artifacts and Analysis
+
+The simulation generates comprehensive test artifacts for analysis:
+
+### 1. Order Lifecycle Data (`*_order_lifecycle.csv`)
+```csv
+Event Index, Order ID, Event Date, Current Status, Current Location, Production Time, 
+Transit Time, Delay Time, Expected Delivery, Actual Delivery, Transportation Mode,
+Source Region, Destination Region, Simulation Day, Is Delayed, Is On Time
+```
+
+### 2. Agent Interactions (`*_agent_interactions.csv`)
+```csv
+Interaction ID, Agent ID, Agent Type, Interaction Type, Timestamp, Target Agent,
+Order ID, Status, Success, Message, Simulation Day
+```
+
+### 3. Simulation Metrics (`*_metrics.csv`)
+```csv
+Core Metrics
+Metric,Mean,Std Dev,Min,Max
+resilience_score,0.72,0.12,0.60,0.84
+recovery_time,0.49,0.21,0.28,0.70
+service_level,0.86,0.06,0.80,0.92
+...
+
+Order Status Summary
+Status,Count
+DELIVERED,45
+IN_TRANSIT,12
+PRODUCTION,8
+NEW,5
+```
 
 ## Key Metrics
 
-The simulation tracks the following metrics, each normalized to a scale of 0.0 to 1.0:
+### Core Performance Indicators
 
-### Core Metrics
+1. **Resilience Score** (0.0 - 1.0)
+   - Composite metric measuring overall supply chain resilience
+   - Weighted average of:
+     * Service Level (30%)
+     * Risk Exposure Inverse (30%)
+     * Flexibility Score (20%)
+     * Quality Score (20%)
 
-1. **Resilience Score**
-   - A composite metric measuring overall supply chain resilience
-   - Calculation: Weighted average of:
-     * 30% Service Level
-     * 30% (1 - Risk Exposure)
-     * 20% Flexibility Score
-     * 20% Quality Score
-
-2. **Recovery Time**
-   - Measures how quickly the supply chain can recover from disruptions
-   - Calculation: Average of Lead Time and (1 - Flexibility Score)
+2. **Recovery Time** (0.0 - 1.0)
+   - Speed of disruption recovery
    - Lower values indicate faster recovery
-
-3. **Service Level**
-   - Measures ability to meet customer demand
-   - Adjusted based on regional reports and operational performance
-   - Impacted by inventory levels, delivery performance, and supplier reliability
-
-### Cost Metrics
-
-4. **Total Cost**
-   - Aggregate measure of all supply chain costs
-   - Influenced by strategic decisions and operational efficiency
-   - Updated based on COO's strategic assessment and regional performance
-
-5. **Inventory Cost**
-   - Cost of maintaining inventory across regions
-   - Adjusted based on:
-     * Regional inventory levels
-     * Storage requirements
-     * Dynamic inventory management effectiveness
-
-6. **Transportation Cost**
-   - Cost of moving goods across the network
-   - Influenced by:
-     * Mode selection (air, ocean, ground)
-     * Route optimization
-     * Fuel costs and capacity utilization
-
-### Risk Metrics
-
-7. **Risk Exposure**
-   - Overall supply chain vulnerability to disruptions
-   - Calculated from:
-     * Supplier diversity
-     * Geographic distribution
-     * External event impacts
-
-8. **Supplier Risk**
-   - Measures reliability and stability of supplier base
-   - Affected by:
-     * Supplier diversification
-     * Regional stability
-     * Supplier performance history
-
-9. **Transportation Risk**
-   - Risk of delays or disruptions in logistics
    - Based on:
-     * Mode reliability
-     * Route complexity
-     * Regional infrastructure quality
+     * Lead Time
+     * Flexibility Score
+     * Regional Adaptability
 
-### Performance Metrics
+3. **Service Level** (0.0 - 1.0)
+   - Order fulfillment performance
+   - Calculated from:
+     * On-time Delivery Rate
+     * Order Completion Rate
+     * Quality Compliance
 
-10. **Lead Time**
-    - Time from order placement to delivery
-    - Impacted by:
-      * Transportation efficiency
-      * Supplier performance
-      * Regional infrastructure
+### Risk and Cost Metrics
 
-11. **Flexibility Score**
-    - Ability to adapt to changes and disruptions
-    - Influenced by:
-      * Production capacity
-      * Supplier alternatives
-      * Transportation mode options
+4. **Risk Exposure** (0.0 - 1.0)
+   - Supply chain vulnerability assessment
+   - Factors:
+     * Supplier Concentration
+     * Geographic Distribution
+     * Transportation Risk
+     * Market Volatility
 
-12. **Quality Score**
-    - Measure of product and service quality
-    - Based on:
-      * Supplier quality performance
-      * Production facility standards
-      * Transportation handling
+5. **Cost Efficiency** (0.0 - 1.0)
+   - Overall cost performance
+   - Components:
+     * Inventory Carrying Cost
+     * Transportation Cost
+     * Production Cost
+     * Risk Mitigation Cost
 
-### Metric Updates
+## Monte Carlo Simulation Details
 
-Metrics are continuously updated based on:
-- COO's strategic assessments
-- Regional manager reports
-- Supplier performance updates
-- External events
-- Agent interactions and decisions
+The Monte Carlo simulation runs multiple iterations with varying conditions to:
 
-All metrics are bounded between 0.0 (worst) and 1.0 (best) through normalization after each update.
+1. **Evaluate Resilience Strategies**
+   - Compare baseline vs. enhanced configurations
+   - Measure impact of individual improvements
+   - Assess combined strategy effectiveness
 
-## Customization
+2. **Analyze Performance Distribution**
+   - Calculate statistical measures
+   - Identify performance patterns
+   - Assess strategy reliability
 
-You can customize the simulation by modifying:
-1. `DEFAULT_CONFIG` in `supply_chain.py`: Adjust simulation parameters
-2. Agent behaviors in `supply_chain.py`: Modify decision-making logic
-3. Metrics calculation in `supply_chain_simulation.py`: Change how metrics are computed
+3. **Optimize Parameters**
+   - Fine-tune configuration settings
+   - Balance trade-offs
+   - Maximize resilience score
+
+### Configuration Parameters
+
+```python
+DEFAULT_CONFIG = {
+    'simulation': {
+        'monte_carlo_iterations': 100,
+        'suppliers_per_region': 3,
+        'time_steps': 365,
+        'base_demand': 10
+    },
+    'supplier': {
+        'reliability': 0.8,
+        'quality_score': 0.9,
+        'cost_efficiency': 0.7
+    },
+    # Additional parameters...
+}
+```
+
+## Development and Testing
+
+### Running Tests
+```bash
+# Run all tests
+pytest tests/
+
+# Run specific test suite
+pytest tests/simulation/test_monte_carlo.py
+
+# Run specific test with artifacts
+pytest tests/simulation/test_monte_carlo.py::test_monte_carlo_all_features
+```
+
+### Test Artifacts Location
+```
+test_results/
+└── simulation_${ID}/
+    ├── all_features_metrics.csv
+    ├── all_features_order_lifecycle.csv
+    └── all_features_agent_interactions.csv
+```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please follow these steps:
+1. Fork the repository
+2. Create a feature branch
+3. Implement your changes
+4. Add or update tests
+5. Submit a pull request
 
 ## License
 
